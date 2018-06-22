@@ -5,7 +5,7 @@ Laravel development environment - using laradock<br/>
 
 ## Installation
 ### [Linux OS](https://github.com/Internaltide/Laradep/blob/master/documents/Linux%20OS.md)
-### Samba
+### [Samba](https://github.com/Internaltide/Laradep/blob/master/documents/Samba.md)
 ### Docker
 ### Laradock
 ### VSCode

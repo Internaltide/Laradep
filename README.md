@@ -7,7 +7,7 @@ Laravel development environment - using laradock<br/>
 ### [Linux OS](https://github.com/Internaltide/Laradep/blob/master/documents/Linux%20OS.md)
 ### [Samba](https://github.com/Internaltide/Laradep/blob/master/documents/Samba.md)
 ### [Docker](https://github.com/Internaltide/Laradep/blob/master/documents/Docker.md)
-### Laradock
+### [Laradock](https://github.com/Internaltide/Laradep/blob/master/documents/Laradock.md)
 ### VSCode
 
 ## 常用快捷

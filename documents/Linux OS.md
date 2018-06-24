@@ -121,7 +121,7 @@ yum remove -y git
 source /etc/bashrc
 git --version
 ```
-PS. 雖然以移除舊版，但安裝新版Git後，/usr/bin/下會再度出現舊版git應用程式。<br/>
+PS. 雖然已移除舊版，但安裝新版Git後，/usr/bin/下會再度出現舊版git應用程式。<br/>
       原因不明，只能再執行一次yum移除予以解決。
 
 ## 關閉防火牆
@@ -131,6 +131,15 @@ PS. 雖然以移除舊版，但安裝新版Git後，/usr/bin/下會再度出現�
 ```
 systemctl stop firewalld
 systemctl disable firewalld
+```
+
+## 編輯 /etc/selinux/config，關閉SELinux
+原因同防火牆，關掉會比較少問題
+```
+SELINUX=Enforcing 改成 SELINUX=disabled
+setenforce 0
+
+執行getenforce檢查是否關閉成功(Enforcing:啟用；Permissive:臨時停用；Disabled:停用)
 ```
 
 <br/><br/>

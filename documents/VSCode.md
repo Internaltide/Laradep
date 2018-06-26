@@ -177,7 +177,8 @@ git config --list
 #### Debug運行方式
  - 開啟VSCODE並進入專案工作區
  - 於工作區模式下開啟偵錯模式
- - 瀏覽器開啟對應的專案URL，並附加上?XDEBUG_SESSION_START={IDE KEY}
+ - 開啟遇偵錯的檔案，設定中斷點
+ - 瀏覽器開啟對應的URL，並附加上?XDEBUG_SESSION_START={IDE KEY}以啟動Debug Session
  - VSCode會開始進入偵錯執行階段(註2)(註3)
 
 ### 註解
@@ -189,3 +190,10 @@ git config --list
 3. 作者發現偶爾XDebug的client、server連線會莫名的無法建立，必須關閉容器、所屬VM、網頁以及VSCODE<br/>
     然後全部重開，才能正常連線。<br/>
     (此問題尚待測試及解決)
+
+
+
+<br/><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Laravel development environment documents
+------
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Document Home&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;](https://github.com/Internaltide/Laradep/blob/master/README.md)[&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Linux OS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;](https://github.com/Internaltide/Laradep/blob/master/documents/Linux%20OS.md)[&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Samba&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;](https://github.com/Internaltide/Laradep/blob/master/documents/Samba.md)[&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Docker&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;](https://github.com/Internaltide/Laradep/blob/master/documents/Docker.md)[&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Laradock&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;](https://github.com/Internaltide/Laradep/blob/master/documents/Laradock.md)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VSCode

@@ -36,7 +36,7 @@ Laravel development environment - using laradock<br/>
  * [Visual Studio Code 相關環境安裝](https://github.com/Internaltide/Laradep/blob/master/documents/VSCode.md#visual-studio-code-%E7%9B%B8%E9%97%9C%E7%92%B0%E5%A2%83%E5%AE%89%E8%A3%9D)
  * [Visual Studio Code 相關外掛安裝](https://github.com/Internaltide/Laradep/blob/master/documents/VSCode.md#visual-studio-code-%E7%9B%B8%E9%97%9C%E5%A4%96%E6%8E%9B%E5%AE%89%E8%A3%9D)
  * [Visual Studio Code 相關設定](https://github.com/Internaltide/Laradep/blob/master/documents/VSCode.md#visual-studio-code-%E7%9B%B8%E9%97%9C%E8%A8%AD%E5%AE%9A)
- * [Visual Studio Code工作區建立]https://github.com/Internaltide/Laradep/blob/master/documents/VSCode.md#visual-studio-code%E5%B7%A5%E4%BD%9C%E5%8D%80%E5%BB%BA%E7%AB%8B)
+ * [Visual Studio Code工作區建立](https://github.com/Internaltide/Laradep/blob/master/documents/VSCode.md#visual-studio-code%E5%B7%A5%E4%BD%9C%E5%8D%80%E5%BB%BA%E7%AB%8B)
  * [Visual Studio Code Debug設定](https://github.com/Internaltide/Laradep/blob/master/documents/VSCode.md#visual-studio-code-debug%E8%A8%AD%E5%AE%9A)
 
 ## 常用快捷

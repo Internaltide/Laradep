@@ -1,6 +1,8 @@
 # Visual Studio Code Plugins
 
 
+[ Back To VSCode Document ](https://github.com/Internaltide/Laradep/blob/master/documents/VSCode.md)
+
  > ### **樣式美化**
  >* __Slack Theme__<br/>
  >   模擬Slack通訊軟體的樣式
@@ -114,3 +116,7 @@
  >    為phpcs的強化工具，檔案太多時可依賴 php-cs-fixer 幫我們修正<br/>
  >    composer global require friendsofphp/php-cs-fixer<br/>
  >    PS. 改太大，需調教過後在測試
+
+
+
+[ Back To VSCode Document ](https://github.com/Internaltide/Laradep/blob/master/documents/VSCode.md)

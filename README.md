@@ -12,6 +12,7 @@ Laravel development environment - using laradock<br/>
 ### [VSCode](https://github.com/Internaltide/Laradep/blob/master/documents/VSCode.md)
 
 ## 常用快捷
+ - Alt+滑鼠左鍵 可同時編輯多行
  - Ctrl+Shift+V 預覽Markdown File
  - Ctrl+F Search
  - Ctrl+H Search and Replace

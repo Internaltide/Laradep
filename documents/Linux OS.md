@@ -124,6 +124,12 @@ git --version
 PS. 雖然已移除舊版，但安裝新版Git後，/usr/bin/下會再度出現舊版git應用程式。<br/>
       原因不明，只能再執行一次yum移除予以解決。
 
+#### 設定Git使用者資訊
+```
+git config --global user.name {User Name}
+git config --global user.email {User Email}
+```
+
 ## 關閉防火牆
 因為是內部自己的開發環境，關掉後會比較省事<br/>
 如果您想要玩玩Centos的新式防火牆firewalld，那可選擇忽略此步驟，

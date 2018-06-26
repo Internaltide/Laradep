@@ -57,7 +57,7 @@ git config --list
    phpcs需要原始套件中的執行檔，為了順利生效，需在Windows下用composer裝phpcs<br/>
    phpmd需要原始套件中的執行檔，為了順利生效，需在Windows下用composer裝phpmd<br/>
    SSHExtension需先設定好ftp-sample的server設定才能在終端機進行遠端伺服器連接<br/>
-   Get Require Plugin List From [VSCodePlugins.txt](https://github.com/Internaltide/Laradep/blob/master/documents/VSCodePlugins.txt)
+   Get Require Plugin List From [VSCodePlugins.md](https://github.com/Internaltide/Laradep/blob/master/documents/VSCodePlugins.md)
 
 ## Visual Studio Code 相關設定
 經由 檔案->喜好設定->設定 進入組態設定畫面<br/>

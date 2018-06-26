@@ -1,7 +1,7 @@
 # Visual Studio Code Plugins
 
 
-[ Back To VSCode Document ](https://github.com/Internaltide/Laradep/blob/master/documents/VSCode.md)
+[ Back To VSCode Document ](https://github.com/Internaltide/Laradep/blob/master/documents/VSCode.md#visual-studio-code-%E7%9B%B8%E9%97%9C%E5%A4%96%E6%8E%9B%E5%AE%89%E8%A3%9D)
 
  > ### **樣式美化**
  >* __Slack Theme__<br/>
@@ -119,4 +119,4 @@
 
 
 
-[ Back To VSCode Document ](https://github.com/Internaltide/Laradep/blob/master/documents/VSCode.md)
+[ Back To VSCode Document ](https://github.com/Internaltide/Laradep/blob/master/documents/VSCode.md#visual-studio-code-%E7%9B%B8%E9%97%9C%E5%A4%96%E6%8E%9B%E5%AE%89%E8%A3%9D)

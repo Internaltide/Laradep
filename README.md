@@ -15,6 +15,7 @@ Laravel development environment - using laradock<br/>
  * [Git版本更新](https://github.com/Internaltide/Laradep/blob/master/documents/Linux%20OS.md#git%E7%89%88%E6%9C%AC%E6%9B%B4%E6%96%B0)
  * [關閉防火牆](https://github.com/Internaltide/Laradep/blob/master/documents/Linux%20OS.md#%E9%97%9C%E9%96%89%E9%98%B2%E7%81%AB%E7%89%86)
  * [關閉SELinux](https://github.com/Internaltide/Laradep/blob/master/documents/Linux%20OS.md#%E7%B7%A8%E8%BC%AF-etcselinuxconfig%E9%97%9C%E9%96%89selinux)
+  * [chronyc自動校時](https://github.com/Internaltide/Laradep/blob/master/documents/Linux%20OS.md#chronyc%E8%87%AA%E5%8B%95%E6%A0%A1%E6%99%82)
 ### [Samba](https://github.com/Internaltide/Laradep/blob/master/documents/Samba.md)
  * [安裝Samba相關套件](https://github.com/Internaltide/Laradep/blob/master/documents/Samba.md#%E5%AE%89%E8%A3%9Dsamba%E7%9B%B8%E9%97%9C%E5%A5%97%E4%BB%B6)
  * [設定Samba開機啟動](https://github.com/Internaltide/Laradep/blob/master/documents/Samba.md#%E8%A8%AD%E5%AE%9Asamba%E9%96%8B%E6%A9%9F%E5%95%9F%E5%8B%95)

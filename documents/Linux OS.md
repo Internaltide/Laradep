@@ -148,6 +148,28 @@ setenforce 0
 執行getenforce檢查是否關閉成功(Enforcing:啟用；Permissive:臨時停用；Disabled:停用)
 ```
 
+## chronyc自動校時
+#### 啟動校時
+```
+systemctl enable chronyd.service
+systemctl start chronyd.service
+```
+#### 列出系統所有可用的時區
+```
+timedatectl list-timezones
+```
+#### 設定時區為亞洲台北
+若您有其他需求，可自行選用其他可用的時區
+```
+timedatectl set-timezone Asia/Taipei
+```
+#### 手動校時(Optional)
+chronyc啟動後會自動緩步將時間校正到定位。
+倘若時差過大時，不想等候，則可下指令一次校正到定位
+```
+chronyc -a makestep
+```
+
 <br/><br/>
 ### 註解
 1. 例如查詢名稱"www2"解析失敗時，系統會檢查search設定值，假若設定為 whatsoft.com，則會嘗試改用www2.whatsoft.com進行二次查詢
@@ -157,6 +179,11 @@ setenforce 0
 5. 宣告是否開機啟動網卡
 6. 設定所在網段
 7. 是否允許非root使用者控制
+
+### 參考
+>
+> [RedHat7 System Administrator Guide](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/system_administrators_guide/index)
+>
 
 
 

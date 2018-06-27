@@ -181,6 +181,54 @@ git config --list
  - 瀏覽器開啟對應的URL，並附加上?XDEBUG_SESSION_START={IDE KEY}以啟動Debug Session
  - VSCode會開始進入偵錯執行階段(註2)(註3)
 
+ ## 使用powershell建立windows的公私鑰
+ #### 切換到使用者根目錄
+ ```
+cd ~/
+ ```
+ #### 檢查windows是否已存在金鑰
+ ```
+ cat .ssh/id_rsa.pub
+ ```
+ #### 如果不存在，需自行建立金鑰
+ ```
+ssh-keygen -t rsa -C "{Your Email}" -b 4096
+
+此時會產生兩把鑰匙，公鑰內容可以佈署到Github、Gitlab等代碼託管平台，
+使Git專案在透過SSH的方式存取時，可以做自動登入，無須每次登打帳號密碼
+id_rsa           私鑰
+id_rsa_pub       公鑰
+ ```
+
+## 遠端建立Repository(以Gitlab為例)
+#### Create a new repository
+```
+git clone git@gitlab.com:internaltide/test.git
+cd test
+touch README.md
+git add README.md
+git commit -m "add README"
+git push -u origin master
+```
+#### Existing folder
+```
+cd existing_folder
+git init
+git remote add origin git@gitlab.com:internaltide/test.git
+git add .
+git commit -m "Initial commit"
+git push -u origin master
+```
+#### Existing Git repository
+```
+cd existing_repo
+git remote rename origin old-origin
+git remote add origin git@gitlab.com:internaltide/test.git
+git push -u origin --all
+git push -u origin --tags
+```
+
+
 ### 註解
 1. 組態面板上，左側為預設值，右側為使用者自訂
 2. Laradock有提供xdebug開關指令，於Laradock目錄下執行<br/>

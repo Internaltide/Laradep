@@ -40,7 +40,7 @@ Laravel development environment - using laradock<br/>
  * [Visual Studio Code工作區建立](https://github.com/Internaltide/Laradep/blob/master/documents/VSCode.md#visual-studio-code%E5%B7%A5%E4%BD%9C%E5%8D%80%E5%BB%BA%E7%AB%8B)
  * [Visual Studio Code Debug設定](https://github.com/Internaltide/Laradep/blob/master/documents/VSCode.md#visual-studio-code-debug%E8%A8%AD%E5%AE%9A)
   * [使用powershell建立windows的公私鑰](https://github.com/Internaltide/Laradep/blob/master/documents/VSCode.md#%E4%BD%BF%E7%94%A8powershell%E5%BB%BA%E7%AB%8Bwindows%E7%9A%84%E5%85%AC%E7%A7%81%E9%91%B0)
-  * [遠端建立Repository(以Gitlab為例)](https://github.com/Internaltide/Laradep/blob/master/documents/VSCode.md#%E9%81%A0%E7%AB%AF%E5%BB%BA%E7%AB%8BRepository(%E4%BB%A5Gitlab%E7%82%BA%E4%BE%8B))
+  * [遠端建立Repository(以Gitlab為例)](https://github.com/Internaltide/Laradep/blob/master/documents/VSCode.md#%E9%81%A0%E7%AB%AF%E5%BB%BA%E7%AB%8Brepository%E4%BB%A5gitlab%E7%82%BA%E4%BE%8B)
 
 ## 常用快捷
  - Alt+滑鼠左鍵 可同時編輯多行

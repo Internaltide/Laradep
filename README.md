@@ -41,6 +41,13 @@ Laravel development environment - using laradock<br/>
  * [Visual Studio Code Debug設定](https://github.com/Internaltide/Laradep/blob/master/documents/VSCode.md#visual-studio-code-debug%E8%A8%AD%E5%AE%9A)
   * [使用powershell建立windows的公私鑰](https://github.com/Internaltide/Laradep/blob/master/documents/VSCode.md#%E4%BD%BF%E7%94%A8powershell%E5%BB%BA%E7%AB%8Bwindows%E7%9A%84%E5%85%AC%E7%A7%81%E9%91%B0)
   * [遠端建立Repository(以Gitlab為例)](https://github.com/Internaltide/Laradep/blob/master/documents/VSCode.md#%E9%81%A0%E7%AB%AF%E5%BB%BA%E7%AB%8Brepository%E4%BB%A5gitlab%E7%82%BA%E4%BE%8B)
+### [Frontend Required](https://github.com/Internaltide/Laradep/blob/master/documents/Frontend.md)
+ * [安裝nodejs](https://github.com/Internaltide/Laradep/blob/master/documents/Frontend.md#%E5%AE%89%E8%A3%9Dnodejs)
+ * [安裝yarn](https://github.com/Internaltide/Laradep/blob/master/documents/Frontend.md#%E5%AE%89%E8%A3%9yarn)
+
+## Laravel Topic
+### Frontend
+#### [Laravel Mix](https://github.com/Internaltide/Laradep/blob/master/laratopics/LaravelMix.md)
 
 ## 常用快捷
  - Alt+滑鼠左鍵 可同時編輯多行

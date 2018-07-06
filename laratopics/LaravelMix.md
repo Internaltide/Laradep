@@ -100,6 +100,7 @@ Mix API：**copy、copyDirectory**
 mix.copy('node_modules/foo/bar.css', 'public/css/bar.css'); // 複製目錄時，其下子目錄會被扁平化
 mix.copyDirectory('assets/img', 'public/img'); // 不執行扁平化，保持既有的目錄結構
 ```
+PS. 此API在run prod後並不會有最小化的效果，若需minify還是要透過合併或編譯的任務API
 
 ### 資源版控任務
 Mix API：**version**

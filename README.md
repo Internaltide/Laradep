@@ -47,7 +47,8 @@ Laravel development environment - using laradock<br/>
 
 ## Laravel Topic
 ### Frontend
-#### [Laravel Mix](https://github.com/Internaltide/Laradep/blob/master/laratopics/LaravelMix.md)
+#### [ - Laravel Mix](https://github.com/Internaltide/Laradep/blob/master/laratopics/LaravelMix.md)
+#### [ - Localization](https://github.com/Internaltide/Laradep/blob/master/laratopics/Localization.md)
 
 ## 常用快捷
  - Alt+滑鼠左鍵 可同時編輯多行

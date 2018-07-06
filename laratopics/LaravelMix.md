@@ -1,4 +1,4 @@
-# Laravel Frontend
+# Laravel Mix Feature
 
 ## **Laravel Mix 安裝**
 Laravel Mix為一個建立在webpack上層的配置區，其提供簡潔的API，協助使用者更輕鬆的定義資源工作任務。

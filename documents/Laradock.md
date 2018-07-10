@@ -85,11 +85,26 @@ docker-compose ps 查詢各容器啟動狀況
 ```
 docker-compose exec workspace bash
 ```
-#### 建立特定版本的專案
-此處指定的版本為5.4，未指定時會自動安裝適用的最新版本
+#### 開始建立專案
+##### vis composer command
+可以指定版本安裝，此處指定為5.4，未指定時會自動安裝適用的最新版本
 ```
 composer create-project laravel/laravel {Project Name} 5.4.* --prefer-dist
-cd domainManger
+```
+##### vis laravel command
+使用laravel安裝包來建立專案，速度上會比較快。只是似乎無法指定版本。
+```
+先下載安裝包(僅需下載一次)
+composer global require "laravel/installer"
+
+建立專案
+laravel new {Project Name}
+```
+#### 調整目錄權限
+主要是要提供web server有可寫的權限，這邊直接將目錄權限設為777。<br/>
+線上環境或安全性需求高的開發環境則不建議這樣做。
+```
+cd {Project Name}
 chmod -R 777 storage
 chmod -R 777 bootstrap/cache
 ```

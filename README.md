@@ -46,6 +46,11 @@ Laravel development environment - using laradock<br/>
  * [安裝yarn](https://github.com/Internaltide/Laradep/blob/master/documents/Frontend.md#%E5%AE%89%E8%A3%9yarn)
 
 ## Laravel Topic
+### Getting Started
+#### [ - Installation](https://github.com/Internaltide/Laradep/blob/master/laratopics/GettingStarted.md#Installation)
+#### [ - Configuration](https://github.com/Internaltide/Laradep/blob/master/laratopics/GettingStarted.md#Configuration)
+#### [ - 目錄結構](https://github.com/Internaltide/Laradep/blob/master/laratopics/GettingStarted.md#目錄結構)
+#### [ - Deployment](https://github.com/Internaltide/Laradep/blob/master/laratopics/GettingStarted.md#Deployment)
 ### Frontend
 #### [ - Laravel Mix](https://github.com/Internaltide/Laradep/blob/master/laratopics/LaravelMix.md)
 #### [ - Localization](https://github.com/Internaltide/Laradep/blob/master/laratopics/Localization.md)

@@ -151,3 +151,5 @@ Route::get('/', function (ContainerInterface $container) {
     //
 });
 ```
+注意，一般解析時，若發現提示字符並未確實綁定到容器，框架會自行透過PHP Reflection處理後續。<br/>
+但倘若使用的式get方法時，則會直接丟出例外。

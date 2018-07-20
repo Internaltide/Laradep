@@ -51,6 +51,12 @@ Laravel development environment - using laradock<br/>
 #### [ - Configuration](https://github.com/Internaltide/Laradep/blob/master/laratopics/GettingStarted.md#Configuration)
 #### [ - 目錄結構](https://github.com/Internaltide/Laradep/blob/master/laratopics/GettingStarted.md#目錄結構)
 #### [ - Deployment](https://github.com/Internaltide/Laradep/blob/master/laratopics/GettingStarted.md#Deployment)
+### Architecture Concepts
+#### [ - Request Lifecycle](https://github.com/Internaltide/Laradep/blob/master/laratopics/Lifecycle.md)
+#### [ - Service Container](https://github.com/Internaltide/Laradep/blob/master/laratopics/ServiceContainer.md)
+#### [ - Service Providers](https://github.com/Internaltide/Laradep/blob/master/laratopics/ServiceProvider.md)
+#### [ - Facades](https://github.com/Internaltide/Laradep/blob/master/laratopics/Facades.md)
+#### [ - Contracts](https://github.com/Internaltide/Laradep/blob/master/laratopics/Contracts.md)
 ### Frontend
 #### [ - Laravel Mix](https://github.com/Internaltide/Laradep/blob/master/laratopics/LaravelMix.md)
 #### [ - Localization](https://github.com/Internaltide/Laradep/blob/master/laratopics/Localization.md)

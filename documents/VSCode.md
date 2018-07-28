@@ -69,6 +69,9 @@ git config --list
     "workbench.colorTheme": "Slack Theme",
     "workbench.iconTheme": "file-icons-colourless",
 
+    // Grid Editor
+    "workbench.editor.closeEmptyGroups": true,
+
     // File Save Hook
     "files.trimFinalNewlines": true,
     "files.trimTrailingWhitespace": true,

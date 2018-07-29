@@ -60,6 +60,13 @@ Laravel development environment - using laradock<br/>
 ### Frontend
 #### [ - Laravel Mix](https://github.com/Internaltide/Laradep/blob/master/laratopics/LaravelMix.md)
 #### [ - Localization](https://github.com/Internaltide/Laradep/blob/master/laratopics/Localization.md)
+### Database
+#### [ - Getting Started](https://github.com/Internaltide/Laradep/blob/master/laratopics/GettingDatabaseStart.md)
+#### [ - Query Builder](https://github.com/Internaltide/Laradep/blob/master/laratopics/QueryBuilder.md)
+#### [ - Pagination](https://github.com/Internaltide/Laradep/blob/master/laratopics/Pagination.md)
+#### [ - Migrations](https://github.com/Internaltide/Laradep/blob/master/laratopics/Migrations.md)
+#### [ - Seeding](https://github.com/Internaltide/Laradep/blob/master/laratopics/Seeding.md)
+#### [ - Redis](https://github.com/Internaltide/Laradep/blob/master/laratopics/Redis.md)
 
 ## 常用快捷
  - Alt+滑鼠左鍵 可同時編輯多行

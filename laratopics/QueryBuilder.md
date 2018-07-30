@@ -561,3 +561,5 @@ DB::table('users')->where('votes', '>', 100)->lockForUpdate()->get();
 > ( A: 讀0加1得1  =>  B: 讀1加1得2  =>  最終計數為2 )
 
 PS. 在Mysql上使用悲觀鎖時，須注意要先set autocommit=0，因為mysql預設為自動提交。
+
+<a href="window.history.back();">Return Previous</a>

@@ -79,7 +79,7 @@ $deleted = DB::delete('delete from users');
 DB::statement('drop table users');
 ```
 ### [查詢建構器](https://github.com/Internaltide/Laradep/blob/master/laratopics/QueryBuilder.md)
-### [Eloquent ORM](https://github.com/Internaltide/Laradep/blob/master/laratopics/EloquentOrm.md)
+### [Eloquent ORM](https://github.com/Internaltide/Laradep/blob/master/laratopics/GettingORMStart.md)
 
 ## 監聽SQL查詢
 如果想要監控應用程式的每一個SQL查詢，可以在服務提供者下使用listen方法進行監聽事件註冊

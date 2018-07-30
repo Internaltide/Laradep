@@ -67,6 +67,8 @@ Laravel development environment - using laradock<br/>
 #### [ - Migrations](https://github.com/Internaltide/Laradep/blob/master/laratopics/Migrations.md)
 #### [ - Seeding](https://github.com/Internaltide/Laradep/blob/master/laratopics/Seeding.md)
 #### [ - Redis](https://github.com/Internaltide/Laradep/blob/master/laratopics/Redis.md)
+### Eloquent ORM
+#### [ - Getting Started](https://github.com/Internaltide/Laradep/blob/master/laratopics/GettingORMStart.md)
 
 ## 常用快捷
  - Alt+滑鼠左鍵 可同時編輯多行

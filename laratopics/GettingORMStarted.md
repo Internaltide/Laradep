@@ -1,3 +1,4 @@
 # Eloquent ORM: Getting Started
 
-<a href="javascript:window.history.back();">Return Previous</a>
+[Return Document Home](https://github.com/Internaltide/Laradep/blob/master/README.md)<br/>
+[Return Database Getting Started](https://github.com/Internaltide/Laradep/blob/master/laratopics/GettingDatabaseStart.md)

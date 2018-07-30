@@ -562,4 +562,4 @@ DB::table('users')->where('votes', '>', 100)->lockForUpdate()->get();
 
 PS. 在Mysql上使用悲觀鎖時，須注意要先set autocommit=0，因為mysql預設為自動提交。
 
-<a href="window.history.back();">Return Previous</a>
+<a href="javascript:window.history.back();">Return Previous</a>

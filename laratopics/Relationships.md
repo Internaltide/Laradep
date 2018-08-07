@@ -87,7 +87,7 @@ return $this->belongsTo('App\User')->withDefault(function ($user) {
 });
 ```
 
-#### 示意表 ( **Users <=> Phone** )
+#### 示意表 ( **Users ⇦⇨ Phone** )
 &nbsp;                    | 正向關聯(user has phone)                    | 反向關聯(phone belongs to user)
 :-----------------------|:----------------------------------------------:|:--------------------------------------:
 [上層模型users]     | if R exist use R else use id                    | if R exist use R else use id
@@ -98,7 +98,7 @@ return $this->belongsTo('App\User')->withDefault(function ($user) {
 &nbsp;                    |                                                                |
 [下層模型phone]   | if F exist use F else use user**s**_id    | if F exist use F else use user_id
 
-### 一對多 ( **Posts <=> Comment** )
+### 一對多 ( **Posts ⇦⇨ Comment** )
 #### 示意表
 &nbsp;                    | 正向關聯(post has comments)                    | 反向關聯(comment belongs to post)
 :-----------------------|:----------------------------------------------:|:--------------------------------------:
@@ -119,7 +119,7 @@ $comment = App\Comment::find(1);
 echo $comment->post->title;
 ```
 
-### 多對多 ( **Users <= Role_User => Roles** )
+### 多對多 ( **Users ⇦ Role_User ⇨ Roles** )
 #### 示意表
 &nbsp;                    | 關聯一(user has roles)                    | 關聯二(role has users)
 :-----------------------|:----------------------------------------------:|:--------------------------------------:
@@ -205,7 +205,7 @@ return $this->belongsToMany('App\User')->using('App\UserRole');
 當希望取得特定國別出處的文章時，但article table卻可能沒有對應country table的外鍵。所以，<br/>
 我們須透過中介的user table先取得特定國別下的User IDs，在利用他們到article table查詢。<br/>
 這種情況在Eloquent中就是使用遠程一對多的關聯設定來實現。
-#### 示意表 ( **Country => Users => Article** )
+#### 示意表 ( **Country ⇨ Users ⇨ Article** )
 &nbsp;                    | 正向關聯(country has articles)                    | 反向關聯(article belongs to country)
 :-----------------------|:----------------------------------------------:|:--------------------------------------:
 [上層模型country] | if L1 exist use L1 else use ***              |
@@ -282,10 +282,367 @@ Relation::morphMap([
 ```
 
 ### 多型多對多關聯
+posts ⇦⇦ taggables ⇨⇨ tags<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⇩<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⇩<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;videos<br/>
+若把多型關聯看做是多個一對多關聯共用同一個下層模型的結構，則多對多多型關聯就是多個<br/>
+多對多關聯共用同樣的下層模型與中介樞紐模型的結構體。<br/>
+範例結構如下：
+```
+posts
+    id - integer
+    name - string
+
+videos
+    id - integer
+    name - string
+
+tags
+    id - integer
+    name - string
+
+taggables
+    tag_id - integer
+    taggable_id - integer        // 存放post或video的ID
+    taggable_type - string      // 存放所屬上層模型之類別名稱
+```
 #### 示意表
+&nbsp;                    | posts has tag       | videos has tag     | tag has posts     | tag has video
+:-----------------------|:--------------------:|:--------------------:|:------------------:|:----------------:
+[模型一posts]         |                            |                             |                           |
+&nbsp;                    |                            |                             |                           |
+[關聯方法]             | tags()                  | tags()                   | posts()               | videos()
+[調用方法] | morphMany('App\Tag', 'taggable') | morphMany('App\Tag', 'taggable') | morphedByMany('App\Post', 'taggable'); | morphedByMany('App\Video', 'taggable');
+[調用位置]             | 模型一               | 模型二                | 下層模型          | 下層模型
+&nbsp;                    |                            |                             |                           |
+[模型二videos]       | &nbsp;               | &nbsp;                | &nbsp;              | &nbsp;
+[下層模型tag]         |                           |                             |                           |
+[中介樞紐模型]      |                           |                             |                           |
+
 #### 取得資料
+```
+$post = App\Post::find(1);
+foreach ($post->tags as $tag) {
+    //
+}
+
+$tag = App\Tag::find(1);
+foreach ($tag->videos as $video) {
+    //
+}
+foreach ($tag->posts as $post) {
+    //
+}
+```
 
 ## 查詢關聯
-## 預先載入
-## 插入、新增之關聯模型
+當您透過關聯方法設定了所有資料表模型關聯後，即可不實際運行關聯查詢來取的關聯資料。<br/>
+除了當作動態屬性直接存取外，亦可視為方法調用，並當作查詢建構器實例繼續鍊式串接條件約束<br/>
+
+### 取得存在特定關聯的數據
+method: **has**
+```
+// 取得有留言的Post
+$posts = App\Post::has('comments')->get();
+
+// 取得三則留言以上的Post
+$posts = App\Post::has('comments', '>=', 3)->get();
+
+// 取得至少含一則被按讚留言的Post
+$posts = App\Post::has('comments.votes')->get();
+```
+method: **whereHas、orWhereHas**
+```
+// 取得留言內容符合foo%條件的Post
+$posts = App\Post::whereHas('comments', function ($query) {
+    $query->where('content', 'like', 'foo%');
+})->get();
+```
+
+### 取得不存在特定關聯的數據
+method: **doesntHave、orDoesntHave**
+```
+// 取得不含留言的Post
+$posts = App\Post::doesntHave('comments')->get();
+
+```
+method: **whereDoesntHave、orWhereDoesntHave**
+```
+// 取得留言內容不符合foo%條件的Post
+$posts = App\Post::whereDoesntHave('comments', function ($query) {
+    $query->where('content', 'like', 'foo%');
+})->get();
+
+// 取得不含留言作者被禁的Post
+$posts = App\Post::whereDoesntHave('comments.author', function ($query) {
+    $query->where('banned', 1);
+})->get();
+```
+
+### 模型數據統計
+method: **withCount**<br/>
+增加統計計數但不載入實際數據，取用統計數字時使用符合{relation}_count格式的欄位名稱
+```
+// 除Post資料外，額外取得留言統計數字
+$posts = App\Post::withCount('comments')->get();
+
+foreach ($posts as $post) {
+    echo $post->comments_count;
+}
+```
+一次取得多個統計計數，並為其加上約束條件
+```
+// 除Post資料外，額外取得按讚次數與留言內容符合foo%條件的計數
+$posts = App\Post::withCount(['votes', 'comments' => function ($query) {
+    $query->where('content', 'like', 'foo%');
+}])->get();
+
+echo $posts[0]->votes_count;
+echo $posts[0]->comments_count;
+```
+為關聯統計數據新增別名
+```
+$posts = App\Post::withCount([
+    'comments',
+    'comments as pending_comments_count' => function ($query) {
+        $query->where('approved', false);
+    }
+])->get();
+
+echo $posts[0]->comments_count;
+
+echo $posts[0]->pending_comments_count;
+```
+PS.如上例， 同一個關聯可以定義多個不同原則的統計方式
+
+## 預先加載
+預設的關聯資料取得都是使用Lazy Loading，意即在存取其特性時才會開始查詢並加載數據。<br/>
+這在下面的例子中會造成N+1次的查詢，可能有效能上的問題，可以使用預先加載來解決。
+```
+<?php
+// 關聯方法
+public function author()
+{
+    return $this->belongsTo('App\Author');
+}
+
+// 關聯數據的查詢會在迴圈中的每一次動態特性autho存取r時都發生一次
+$books = App\Book::all();          // 一次查詢
+foreach ($books as $book) {       // 開始N次查詢，共產生N+1次查詢
+    echo $book->author->name;
+}
+```
+### 使用**with** method在第一條查詢就預先加載author的關聯資料，避免N+1查詢
+```
+$books = App\Book::with('author')->get();
+foreach ($books as $book) {
+    echo $book->author->name;
+}
+
+// 加了with('author')的書籍資料查詢，等同於多了一條
+// select * from authors where id in (1, 2, 3, 4, 5, ...)
+// 而迴圈內的資料存取就變成是單存的記憶體資料操作
+
+// with方法亦可以同時加載多個關聯資料
+$books = App\Book::with(['author', 'publisher'])->get();
+
+// 加載嵌套的關聯資料，預載作者資料及其連絡資料
+$books = App\Book::with('author.contacts')->get();
+```
+PS. 官方說在query parent model時可以使用with，意味著反相關聯不能使用? 待確認
+
+### 只加載特定欄位的關聯資料
+```
+$users = App\Book::with('author:id,name')->get();
+```
+PS. 官方提及id column 總是應該被加入清單中，不太確定含意，待確認
+### 預先加在有額外約束條件的關聯資料
+```
+$users = App\User::with(['posts' => function ($query) {
+    $query->where('title', 'like', '%first%');
+}])->get();
+```
+### 延遲的預先加載
+當需要父模型資料來判斷是否是否加載關聯資料時，<br/>
+則可以使用此方法，將關聯資料預載延後到存取完父模型資料後才開始
+```
+$books = App\Book::all();
+
+if ($someCondition) {
+    $books->load('author', 'publisher');
+}
+
+// 添加約束的延後預載
+$books->load(['author' => function ($query) {
+    $query->orderBy('published_date', 'asc');
+}]);
+```
+### 僅在未加載時才加載
+避免直接全域加載，只在特定狀況下才載入關聯資料
+```
+public function format(Book $book)
+{
+    $book->loadMissing('author');
+
+    return [
+        'name' => $book->name,
+        'author' => $book->author->name
+    ];
+}
+```
+
+## 關聯模型的插入與更新
+### 插入新的關聯模型
+method: **save**
+```
+$comment = new App\Comment(['message' => '一條新的評論。']);
+
+$post = App\Post::find(1);
+
+// 在關聯模型的操作方式下，外鍵post_id會自動添加，無須手動指定
+$post->comments()->save($comment);
+
+// 如果處理的是多對多關聯，還可以傳遞第二個參數插入額外資料到中間樞紐表
+App\User::find(1)->roles()->save($role, ['expires' => $expires]);
+```
+### 插入多個新的關聯模型
+method: **saveMany**
+```
+$post = App\Post::find(1);
+
+$post->comments()->saveMany([
+    new App\Comment(['message' => 'A new comment.']),
+    new App\Comment(['message' => 'Another comment.']),
+]);
+```
+### 插入新的關聯模型(Mass Assignment)
+method: **create**<br/>
+功能等價於save，唯一差別在於其接受的參數為PHP陣列，而save則須是模型實例
+```
+$post = App\Post::find(1);
+
+$comment = $post->comments()->create([
+    'message' => 'A new comment.',
+]);
+```
+### 插入多個新的關聯模型(Mass Assignment)
+method: **createMany**<br/>
+```
+$post = App\Post::find(1);
+
+$post->comments()->createMany([
+    [
+        'message' => 'A new comment.',
+    ],
+    [
+        'message' => 'Another new comment.',
+    ],
+]);
+```
+### 附加belongsTo關聯
+method: **associate**
+此法會自動在子模型中設定好外鍵
+```
+// 將ID為10的帳戶關連到$user(Let Account belongs to $user)
+$account = App\Account::find(10);
+$user->account()->associate($account);
+$user->save();
+```
+### 取消belongsTo關聯
+method: **dissociate**
+子模型外鍵會被設成null
+```
+$user->account()->dissociate();
+$user->save();
+```
+### 多對多關聯的附加
+method: **attach**
+```
+$user = App\User::find(1);
+$user->roles()->attach($roleId);
+
+// Attach three roles to user...
+$user->roles()->attach([1, 2, 3]);
+
+// 亦可透過傳遞一陣列參數來寫入額外數據
+$user->roles()->attach($roleId, ['expires' => $expires]);
+$user->roles()->attach([
+    1 => ['expires' => $expires],
+    2 => ['expires' => $expires]
+]);
+```
+### 多對多關聯的移除
+```
+// Detach a single role from the user...
+$user->roles()->detach($roleId);
+
+// Detach three role from user...
+$user->roles()->detach([1, 2, 3]);
+
+// Detach all roles from the user...
+$user->roles()->detach();
+```
+### 同步關聯
+method: **sync、syncWithoutDetaching**
+接受一包含多個ID的陣列參數
+```
+// 建立ID為1、2、3的關聯，其餘皆移除
+$user->roles()->sync([1, 2, 3]);
+
+// 同上，另外對ID為1的數據進行expires資料更新
+$user->roles()->sync([1 => ['expires' => true], 2, 3]);
+
+// 建立ID為1、2、3的關聯，但不做Detache的動作
+$user->roles()->syncWithoutDetaching([1, 2, 3]);
+```
+
+### 關聯切換
+method: **toggle**
+關聯關係的反向操作。原attached改為detach；原detached改為attach
+```
+$user->roles()->toggle([1, 2, 3]);
+```
+
+### 更新中間樞紐表的資料
+method: **updateEistingPivot**
+```
+// 透過外鍵$roleId找到對應記錄後，依指定的第二參數進行資料更新
+$user = App\User::find(1);
+$user->roles()->updateExistingPivot($roleId, $attributes);
+```
+
 ## 上層時間戳記連動
+當子模型belongsTo或belongsToMany父模型時，又具子模型數據更新須連動更新所屬父模型時間戳記的需求時，<br/>
+可以利用模型的屬性**touches**進行設定。
+```
+<?php
+
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Comment extends Model
+{
+    /**
+     * 設定要連動的上層模型
+     * 所有設定的關聯都會被連動
+     *
+     * @var array
+     */
+    protected $touches = ['post'];
+
+    /**
+     * Get the post that the comment belongs to.
+     */
+    public function post()
+    {
+        return $this->belongsTo('App\Post');
+    }
+}
+
+//現在，當你更新一個 Comment，它所屬的 Post 的 updated_at 欄位也會同時更新
+$comment = App\Comment::find(1);
+$comment->text = 'Edit to this comment!';
+$comment->save();
+```

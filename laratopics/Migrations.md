@@ -177,10 +177,10 @@ Schema::dropIfExists('users');
 其他設定資料表的項目<br/>
 設定項目                                             | 描述
 :---------------------------------------------|:----------------------------------------------
-$table->engine = 'InnoDB';                 | 指定Mysql使用的資料庫引擎 |
-$table->charset = 'utf8';                       | 指定Mysql使用的資料編碼字符集 |
-$table->collation = 'utf8_unicode_ci'; | 指定Mysql資料庫的定序規則 |
-$table->temporary();                           | 建立臨時表格(不支援SQL Server) |
+$table->engine = 'InnoDB';                 | 指定Mysql使用的資料庫引擎
+$table->charset = 'utf8';                       | 指定Mysql使用的資料編碼字符集
+$table->collation = 'utf8_unicode_ci'; | 指定Mysql資料庫的定序規則
+$table->temporary();                           | 建立臨時表格(不支援SQL Server)
 
 
 ### 資料欄位
@@ -253,11 +253,11 @@ PS. SQLite 資料庫並不支援在單行遷移中移除或修改多筆欄位。
 其他可用的別名方法<br/>
 設定項目                                             | 描述
 :---------------------------------------------|:----------------------------------------------
-$table->dropRememberToken();         | 移除remember_token欄位 |
-$table->dropSoftDeletes();                  | 移除delete_at欄位 |
-$table->dropSoftDeletesTz();              | dropSoftDeletes()方法的別名 |
-$table->dropTimestamps();                  | 移除created_at跟updated_at欄位 |
-$table->dropTimestampsTz();              | dropTimestamps()方法的別名 |
+$table->dropRememberToken();         | 移除remember_token欄位
+$table->dropSoftDeletes();                  | 移除delete_at欄位
+$table->dropSoftDeletesTz();              | dropSoftDeletes()方法的別名
+$table->dropTimestamps();                  | 移除created_at跟updated_at欄位
+$table->dropTimestampsTz();              | dropTimestamps()方法的別名
 
 ### 資料索引
 #### 索引建立
@@ -285,11 +285,11 @@ $table->unique('email', 'unique_email');
 其他類型的索引建立方法<br/>
 設定項目                                             | 描述
 :---------------------------------------------|:----------------------------------------------
-$table->primary('id');                          | 建立主鍵id |
-$table->primary(['id', 'parent_id']);     | 建立複合主鍵 |
-$table->unique('email');                      | 建立唯一索引 |
-$table->index('state');                          | 建立普通索引 |
-$table->spatialIndex('location');          | 建立空間索引(Sqlite不支援) |
+$table->primary('id');                          | 建立主鍵id
+$table->primary(['id', 'parent_id']);     | 建立複合主鍵
+$table->unique('email');                      | 建立唯一索引
+$table->index('state');                          | 建立普通索引
+$table->spatialIndex('location');          | 建立空間索引(Sqlite不支援)
 
 
 #### 索引長度 & MySQL / MariaDB
@@ -325,10 +325,10 @@ Laravel預設的索引名稱格式為為串接資料表名稱、欄位名稱與�
 舉例如下：
 移除索引方式                                                              | 索引操作描述
 :----------------------------------------------------------------|:----------------------------------------------
-$table->dropPrimary('users_id_primary');                   | 移除 users table 的主鍵 |
-$table->dropUnique('users_email_unique');                | 移除 users table 的唯一索引 |
-$table->dropIndex('geo_state_index');                         | 移除 geo table 的普通索引 |
-$table->dropSpatialIndex('geo_location_spatialindex'); | 移除 geo table 的空間索引 |
+$table->dropPrimary('users_id_primary');                   | 移除 users table 的主鍵
+$table->dropUnique('users_email_unique');                | 移除 users table 的唯一索引
+$table->dropIndex('geo_state_index');                         | 移除 geo table 的普通索引
+$table->dropSpatialIndex('geo_location_spatialindex'); | 移除 geo table 的空間索引
 
 當傳遞的是欄位名為主的陣列資料時，則會自行根據所在的表名，<br/>
 給定的欄位名及索引類型來決定要移除的索引名稱。

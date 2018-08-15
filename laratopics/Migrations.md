@@ -175,12 +175,12 @@ Schema::dropIfExists('users');
 ```
 
 其他設定資料表的項目<br/>
-設定項目                                             | 描述
-:----------------------------------------------|:----------------------------------------------
-\$table->engine = 'InnoDB';                 | 指定Mysql使用的資料庫引擎
-\$table->charset = 'utf8';                       | 指定Mysql使用的資料編碼字符集
-\$table->collation = 'utf8_unicode_ci'; | 指定Mysql資料庫的定序規則
-\$table->temporary();                           | 建立臨時表格(不支援SQL Server)
+| 設定項目                                             | 描述                                                    |
+|:----------------------------------------------|:---------------------------------------------|
+| $table->engine = 'InnoDB';                  | 指定Mysql使用的資料庫引擎          |
+| $table->charset = 'utf8';                        | 指定Mysql使用的資料編碼字符集  |
+| $table->collation = 'utf8_unicode_ci';  | 指定Mysql資料庫的定序規則          |
+| $table->temporary();                            | 建立臨時表格(不支援SQL Server)   |
 
 
 ### 資料欄位

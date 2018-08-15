@@ -15,12 +15,12 @@ PS. 新建立的遷移檔案預設都會放在database/migrations目錄中。每
 ### 指令延伸參數
 **--table**
 ```
-// 指定資料表名稱為 users
+// 會預先於up、down兩個方法內指定好資料表名稱為 users
 php artisan make:migration add_votes_to_users_table --table=users
 ```
 **--create**
 ```
-// 建立遷移檔時，同時建立新的資料表 users
+// 會預先於up方法內寫好建立新表 users的程式碼；於down方法內寫好drop table的程式碼
 php artisan make:migration create_users_table --create=users
 ```
 **--path**

@@ -87,8 +87,8 @@ php artisan migrate --force
 
 ### 遷移還原
 使用指令rollback可還原遷移的操作，該指令會取消最後一次執行的**批次**遷移，<br/>
-所謂批次意味著可能是包含多筆遷移檔的一次性執行，所以取消的並不一定僅僅是<br/>
-單一遷移檔的遷移動作。<br/>
+所謂批次意味著可能是包含多筆遷移檔的一次性執行(即migration table中最大batch值的哪幾筆遷移)，<br/>
+所以取消的並不一定僅僅是單一遷移檔的遷移動作。<br/>
 command: **migrate:rollback**
 ```
 php artisan migrate:rollback
@@ -181,6 +181,11 @@ Schema::dropIfExists('users');
 | $table->charset = 'utf8';                        | 指定Mysql使用的資料編碼字符集  |
 | $table->collation = 'utf8_unicode_ci';  | 指定Mysql資料庫的定序規則          |
 | $table->temporary();                            | 建立臨時表格(不支援SQL Server)   |
+PS.<br/>
+> * InnoDB才支援外鍵約束。<br/>
+> * utf8_unicode_ci 比 utf8_general_ci來準確，但一般軟體使用utf8_general_ci已然足夠，<br/>
+> 尤其在未用到德、法、俄之語系資料的情況下，基本用不上utf8_unicode_ci。<br/>
+> * utf8_general_ci 比 utf8_unicode_ci來快(指校對速度)，但現今硬體設備已然足以弭平這類的效能問題。<br/>
 
 
 ### 資料欄位
@@ -294,9 +299,10 @@ $table->unique('email', 'unique_email');
 
 
 #### 索引長度 & MySQL / MariaDB
-Laravel預設使用utf8mb4編碼字符集，它支持在DB儲存**emojis**表情圖示。<br/>
-但若Mysql或MarialDB的版本不夠時，則要為該資料欄位正確建立索引前，就必須<br/>
-先手動設定在遷移運行時使用的預設字符串長度。<br/>
+Laravel預設使用utf8mb4編碼字符集，它是utf8的超集，可以支持更多字符，如在DB儲存**emojis**表情圖示。<br/>
+但使用時常常會產生其索引鍵過長的問題，以Inodb為例，其單一索引最大長度只能到768。所以，<br/>
+若是Mysql(<5.7.7)或MarialDB(<10.2.2)的版本不夠時，則要為該資料欄位正確建立索引前，<br/>
+就必須先手動設定在遷移運行時使用的預設字符串長度。<br/>
 <br/>
 在AppServiceProvider中調用Schema::defaultStringLength
 ```
@@ -309,6 +315,9 @@ use Illuminate\Support\Facades\Schema;
  */
 public function boot()
 {
+    // utf8mb4最大可以使用四個字節來編碼一個字符，
+    // 當設定字串長度最大191時，即限制了最大資料長度為191*4=764
+    // 而不會超過768
     Schema::defaultStringLength(191);
 }
 ```
@@ -322,7 +331,7 @@ $table->renameIndex('current', 'desired')
 
 #### 移除索引
 在移除索引前，必須明確給定索引名稱，而Laravel預設則會自動定義合理的索引名稱。<br/>
-Laravel預設的索引名稱格式為為串接資料表名稱、欄位名稱與索引類型。
+Laravel預設的索引名稱格式為為串接索引所在資料表名稱、索引欄位名稱與索引類型。
 
 #### 各類索引移除案例
 | 移除索引方式                                                             | 索引操作描述                        |
@@ -351,6 +360,8 @@ Schema::table('posts', function (Blueprint $table) {
     $table->foreign('user_id')->references('id')->on('users');
 });
 ```
+PS. 建立外鍵的同時，Laravel亦會同時建立該外鍵欄位的普通索引，名稱同外鍵
+
 串聯刪除或更新<br/>
 method: **onDelete('cascade')、onUpdate('cascade')**
 ```
@@ -359,11 +370,13 @@ $table->foreign('user_id')
           ->references('id')->on('users')
           ->onDelete('cascade');
 ```
-刪除外鍵約束( 外鍵約束名稱格式與索引相同 )<br/>
+刪除外鍵約束( 外鍵約束名稱格式與前面普通索引的命名方式相同 )<br/>
 method: **dropForeign**
 ```
 $table->dropForeign('posts_user_id_foreign');
 ```
+PS. 刪除外鍵方法並不會主動移除該欄位的普通索引，若有需要則需另外再使用dropIndex<br/>
+
 開啟或關閉外鍵約束<br/>
 method: **enableForeignKey、disableForeignKey**
 ```

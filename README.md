@@ -60,6 +60,8 @@ Laravel development environment - using laradock<br/>
 ### Frontend
 #### [ - Laravel Mix](https://github.com/Internaltide/Laradep/blob/master/laratopics/LaravelMix.md)
 #### [ - Localization](https://github.com/Internaltide/Laradep/blob/master/laratopics/Localization.md)
+### Security
+#### [ - Authentication](https://github.com/Internaltide/Laradep/blob/master/laratopics/Authentication.md)
 ### Database
 #### [ - Getting Started](https://github.com/Internaltide/Laradep/blob/master/laratopics/GettingDatabaseStart.md)
 #### [ - Query Builder](https://github.com/Internaltide/Laradep/blob/master/laratopics/QueryBuilder.md)

@@ -427,8 +427,8 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         Auth::extend('jwt', function ($app, $name, array $config) {
-            // Return an instance of Illuminate\Contracts\Auth\Guard...
-            // 這個介面也定義了幾個必須實作的方法
+            // Return an instance of Illuminate\Contracts\Auth\Guard...，該介面也定義了幾個必須實作的方法
+            // $config['provider']即auth.php內guard區塊的provider設定值
             return new JwtGuard(Auth::createUserProvider($config['provider']));
         });
     }
@@ -555,8 +555,10 @@ interface UserProvider {
    該方法接受於登入時傳遞給 Auth::attempt 方法之陣列型態的認證資料，並使用$credentials['username']到底層的永久性儲存系統進行查詢，<br/>
    取得匹配的使用者。接者返回Authenticatable實例。**注意，該法不應該企圖做任何密碼的驗證或是認證**<br/>
  - updateRememberToken<br/>
-   該法接受新的token值來更新$user的remember_token欄位，而在使用"記住我"登入成功或登出時，就應該指派新的token予以更新<br/>
+   該方法接受新的token值來更新$user的remember_token欄位，而在使用"記住我"登入成功或登出時，就應該指派新的token予以更新<br/>
  - validateCredentials<br/>
+   該方法應該使用$credentials來與$user來進行比對認證。舉例來說，可能會使用Hash Facade的check方法來比較$credentials['password']與<br/>
+   $user->getAuthPassword()的回傳值，並回傳布林值以表示密碼是否為有效密碼。
 
 #### Authenticatable Contract
 此介面通常由Model實作，對應auth.php的provider區塊內的model設定。所以前述的Authenticatable實例，<br/>

@@ -35,6 +35,11 @@ WORKSPACE_INSTALL_XDEBUG=true
 
 PHP_FPM_XDEBUG=true
 ```
+PS. 網路上通常建議，沒特別需求時，不用將PHP延伸模組裝進workspace，所以相對應的PHP_FPM_***設定項改為true即可。<br/>
+      但遭遇過部分composer套件會檢查PHP的相依，反而導致workspace環境下無法成功安裝套件的窘境。<br/>
+      此時只能將對應的WORKSPACE_INSTALL_***設定項也一併改成true，然後重build workspace 映像檔。<br/>
+
+
 #### 容器個別設定
 ##### Xdebug
 ```
@@ -86,12 +91,12 @@ docker-compose ps 查詢各容器啟動狀況
 docker-compose exec workspace bash
 ```
 #### 開始建立專案
-##### vis composer command
+##### via composer command
 可以指定版本安裝，此處指定為5.4，未指定時會自動安裝適用的最新版本
 ```
 composer create-project laravel/laravel {Project Name} 5.4.* --prefer-dist
 ```
-##### vis laravel command
+##### via laravel command
 使用laravel安裝包來建立專案，速度上會比較快。只是似乎無法指定版本。
 ```
 先下載安裝包(僅需下載一次)

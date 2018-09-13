@@ -7,7 +7,7 @@
 
 ## Encryption
 ### 使用前配置
-Laravel加密器在加密時會使用一組APP KEY來執行加密演匴以提升安全性，沒有該KEY的加密<br/>
+Laravel加密器在加密時會使用一組APP KEY來執行加密演算以提升安全性，沒有該KEY的加密<br/>
 都算不上安全。所以，使用Laravel加密功能之前務必於config/app設定好APP_KEY，框架會使用<br/>
 安全且隨機的方式來生成APP_KEY。通常建立專案的同時就會產生好一組KEY值，若沒有也可以<br/>
 自行使用下列指令產生
@@ -67,7 +67,7 @@ Laravel 提供了Bcrypt跟Argon2兩種雜湊演算法，內建的LoginController
 
 ### 使用配置
 config/hashing是主要的設定檔，預設提供了Bcrypt跟Argon2兩種演算法，但Argon2需要PHP版本<br/>
-7.2.1以上才有支援。
+7.2.0以上才有支援。
 ```
 // 設定預設使用的雜湊演算法
 'driver' => 'bcrypt',

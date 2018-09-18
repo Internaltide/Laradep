@@ -58,7 +58,7 @@ Laravel development environment - using laradock<br/>
 #### [ - Facades](https://github.com/Internaltide/Laradep/blob/master/laratopics/Facades.md)
 #### [ - Contracts](https://github.com/Internaltide/Laradep/blob/master/laratopics/Contracts.md)
 ### Basic
-#### [ - Routing](https://github.com/Internaltide/Laradep/blob/master/laratopics/routing.md)
+#### [ - Routing](https://github.com/Internaltide/Laradep/blob/master/laratopics/Routing.md)
 ### Frontend
 #### [ - Laravel Mix](https://github.com/Internaltide/Laradep/blob/master/laratopics/LaravelMix.md)
 #### [ - Localization](https://github.com/Internaltide/Laradep/blob/master/laratopics/Localization.md)

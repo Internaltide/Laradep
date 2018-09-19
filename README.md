@@ -66,6 +66,8 @@ Laravel development environment - using laradock<br/>
 #### [ - Authentication](https://github.com/Internaltide/Laradep/blob/master/laratopics/Authentication.md)
 #### [ - Encryption & Hashing](https://github.com/Internaltide/Laradep/blob/master/laratopics/Encryption.md)
 #### [ - Password Reset](https://github.com/Internaltide/Laradep/blob/master/laratopics/PasswordReset.md)
+### Digging Deeper
+#### [ - Mail](https://github.com/Internaltide/Laradep/blob/master/laratopics/Mail.md)
 ### Database
 #### [ - Getting Started](https://github.com/Internaltide/Laradep/blob/master/laratopics/GettingDatabaseStart.md)
 #### [ - Query Builder](https://github.com/Internaltide/Laradep/blob/master/laratopics/QueryBuilder.md)

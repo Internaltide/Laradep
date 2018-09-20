@@ -288,8 +288,88 @@ public function build()
     }
 ```
 
-## Markdown Mailables
-> Pendding
+## Markdown 格式的 Mailables
+Artisan指令建立的初始Mailable預設並不包含Markdown模板。若需要Markdown模板，可以為指令附加<br/>
+--markdown選項。
+```
+php artisan make:mail OrderShipped --markdown=emails.orders.shipped
+```
+接者，Mailable的build方法內，改用markdow方法取代原本的view，並載入指令生成的Markdown模板。
+```
+/**
+ * Build the message.
+ *
+ * @return $this
+ */
+public function build()
+{
+    return $this->from('example@example.com')
+                ->markdown('emails.orders.shipped');
+}
+```
+
+### 編寫Markdown格式的郵件
+Markdown Mailable同時結合Blade跟Markdown兩種語法，同時也可以在內部使用Laravel預製的Markdown元件
+```
+@component('mail::message')
+# Order Shipped
+
+Your order has been shipped!
+
+@component('mail::button', ['url' => $url])
+View Order
+@endcomponent
+
+Thanks,<br>
+{{ config('app.name') }}
+@endcomponent
+```
+> 在撰寫Markdown電子郵件時，請勿使用多餘的縮進。<br/>
+> Markdown解析器將縮進內容呈現為代碼塊。
+
+#### 按鈕元件
+該元件會建立一個置中的連結按鈕，可接受url跟color兩個參數，支援的顏色有blue、green、red
+```
+@component('mail::button', ['url' => $url, 'color' => 'green'])
+View Order
+@endcomponent
+```
+
+#### 面板元件
+該元件會建立一個顏色略不同於背景的文字屏幕，予以提供一個引人注意的提醒區塊
+```
+@component('mail::panel')
+This is the panel content.
+@endcomponent
+```
+
+#### 表格元件
+該元件會提供將Markdown Table轉換為Html Table的功能
+```
+@component('mail::table')
+| Laravel       | Table         | Example  |
+| ------------- |:-------------:| --------:|
+| Col 2 is      | Centered      | $10      |
+| Col 3 is      | Right-Aligned | $20      |
+@endcomponent
+```
+
+### 自訂Markdown元件
+#### 匯出
+匯出Laravel的Markdown郵件元件到應用程式中
+```
+php artisan vendor:publish --tag=laravel-mail
+```
+#### 客製內容
+匯出的元件，預設會放在resources/views/vendor/mail目錄下。其內又有html跟markdown兩個子目錄，<br/>
+分別置放各自html格式與markdown plain-text格式的文件。然後就可以針對這些文件進行客製。<br/>
+#### 客製CSS
+匯出元件後，resources/views/vendor/mail/html/themes目錄下就會出現一個default.css的文件。<br/>
+你可以在該文件內進行CSS的客製，自訂的樣式會自動被嵌入郵件。
+
+### 全新替換Markdown元件樣式
+如果你要的是完全地替換掉Markdown元件的樣式，必需到html/themes目錄下撰寫一個全新的CSS，<br/>
+並到config/mail設定檔中替換theme選項的設定值。
 
 ## 寄送郵件
 要將郵件寄出前，我們必須先用Mail Facade的方法to來設定郵件的收件人，該法可接受單個mail address、<br/>
@@ -401,10 +481,58 @@ class OrderShipped extends Mailable implements ShouldQueue
 }
 ```
 
-## 郵件與本機端的開發
+## 本機端的開發的郵件寄送
+有時應用程式仍處於開發階段，我們並不想讓郵件真的寄往實際郵件位址，進而影響使用者。<br/>
+Laravel提供了幾個方式來處理這類的狀況，你可以不用動原本程式的寄送邏輯又可以擁有變相的處理行為。
+### 日誌驅動
+透過設定檔配置，讓Laravel將郵件內容改寫到log file裡頭去，取代真實的寄送。
+
+### 通用收件者
+透過在config/mail設定通用的收件者，讓所有郵件寄到通用收件者而不是實際收件者
+```
+'to' => [
+    'address' => 'example@example.com',
+    'name' => 'Example'
+],
+```
+PS. 預設to區塊並不存在，所以上線前要拿掉? 待測試...
+
+### 郵件陷阱(Mailtrap)
+使用Mailtrap這個網路服務，改用SMTP驅動連線到Mailtrap的主機。寄送出去的Email<br/>
+並不會真的寄到收件者哪邊去，而是被Mailtrap捕抓下來。
+```
+MAIL_DRIVER=smtp
+MAIL_HOST=mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=Your Mailtrap Username
+MAIL_PASSWORD=Your Mailtrap Password
+MAIL_ENCRYPTION=Your Mailtrap Encryption(ex. tls))
+```
+
+## 事件
+Laravel為郵件寄送提供了兩種事件觸發行為，而該事件僅會在郵件實際寄送時被觸發，<br/>
+加入佇列階段並不會觸發。<br/>
+ - MessageSending - 郵件寄送前被觸發<br/>
+ - MessageSent - 郵件寄送後被觸發<br/>
+可以在EventServiceProvider內進行事件監聽的註冊行為
+```
+/**
+ * The event listener mappings for the application.
+ *
+ * @var array
+ */
+protected $listen = [
+    'Illuminate\Mail\Events\MessageSending' => [
+        'App\Listeners\LogSendingMessage',
+    ],
+    'Illuminate\Mail\Events\MessageSent' => [
+        'App\Listeners\LogSentMessage',
+    ],
+];
+```
 
 ## 補充
 **Cid**
 > 一封郵件由Headers和郵件本體組成，Header中包括了各種屬性，其中就有Cid，即Content-Id。<br/>
 >  該Cid為內嵌資源的唯一辨識碼，供HTML格式正文可利用該id來取得並引用內嵌資源。<br/>
-> 舉例，一個Content-ID: it315logo_gif即在HTML文本對應<img src="it315logo_gif">
+> 舉例，一個Content-ID: it315logo_gif即在HTML文本對應&lt;img src="it315logo_gif"&gt;

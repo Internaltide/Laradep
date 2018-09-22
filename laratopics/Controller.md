@@ -255,5 +255,103 @@ Route::resource('photos', 'PhotoController');
 > 你應該考慮將其分開在兩個不同的控制器，而非放在同一個控制器內。
 
 ## 依賴注入與控制器
+### 建構式注入
+Laravel服務容器能用來解析所有的控制器，因此可以在建構式中透過型別提示來注入依賴。
+```
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Repositories\UserRepository;
+
+class UserController extends Controller
+{
+    /**
+     * The user repository instance.
+     */
+    protected $users;
+
+    /**
+     * Create a new controller instance.
+     *
+     * @param  UserRepository  $users
+     * @return void
+     */
+    public function __construct(UserRepository $users)
+    {
+        $this->users = $users;
+    }
+}
+```
+當然，也可以透過Laravel契約的型別提示來注入其實作的實例，並藉此提供更好的測試性。
+
+### 內部方法注入
+除了在建構式注入外，也可以於控制器內部的方法注入，最常用的就是Illuminate\Http\Request的注入。
+```
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class UserController extends Controller
+{
+    /**
+     * Store a new user.
+     *
+     * @param  Request  $request
+     * @return Response
+     */
+    public function store(Request $request)
+    {
+        $name = $request->name;
+
+        //
+    }
+}
+```
+PS. 實務上，建構式可以注入任何依賴，但是內部方法的注入似乎就不是這樣，似乎需要明確於服務提供者內註冊綁定的才行 ?<br/>
+
+另外，如果路由設定含有路由參數，如下
+```
+Route::put('user/{id}', 'UserController@update');
+```
+按下列方式，於型別提示注入後，依然還是可以將路由參數傳遞進方法內部
+```
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class UserController extends Controller
+{
+    /**
+     * Update the given user.
+     *
+     * @param  Request  $request
+     * @param  string  $id
+     * @return Response
+     */
+    public function update(Request $request, $id)
+    {
+        //
+    }
+}
+```
 
 ## 路由快取
+> 注意!! 閉包類型路由是無法被快取的，只能快取控制器型的路由<br/>
+> Ex. Route::put('user/{id}', 'UserController@update');<br/>
+
+如果你只使用控制器型路由，透過Laravel提供的路由快取功能，可以大大地加快路由註冊的時間。其執行指令如下：
+```
+php artisan route:cache
+```
+在執行上述指令後，每次請求都會載入快取的路由文件。只是，如果路由有異動，則需要重新生成新的路由快取。<br/>
+也因為這樣，你應該只需要在線上環境才執行路由的快取。<br/>
+
+你還可以使用下列指令來清除快取路由
+```
+php artisan route:clear
+```

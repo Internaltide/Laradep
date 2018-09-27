@@ -59,6 +59,7 @@ Laravel development environment - using laradock<br/>
 #### [ - Contracts](https://github.com/Internaltide/Laradep/blob/master/laratopics/Contracts.md)
 ### Basic
 #### [ - Routing](https://github.com/Internaltide/Laradep/blob/master/laratopics/Routing.md)
+#### [ - Middleware](https://github.com/Internaltide/Laradep/blob/master/laratopics/Middleware.md)
 #### [ - CSRF Protection](https://github.com/Internaltide/Laradep/blob/master/laratopics/CSRF.md)
 #### [ - Controllers](https://github.com/Internaltide/Laradep/blob/master/laratopics/Controller.md)
 ### Frontend

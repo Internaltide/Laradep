@@ -281,7 +281,8 @@ class UserAvatarController extends Controller
 }
 ```
 上述例子中，要注意的是，我們一樣只需指定目錄即可，因為store方法也會自動產生惟一ID來做為檔名，<br/>
-並以MIME TYPE來決定副檔名，同樣store也會返回完整路徑。<br/>
+並以MIME TYPE來決定副檔名，同樣store也會返回完整路徑。另外，預設檔案會存到Default磁碟，可藉由<br/>
+傳遞磁碟名稱作為第二參數來變更存放的磁碟位置。<br/>
 
 使用putFile來等價完成上述例子的行為
 ```
@@ -289,12 +290,143 @@ $path = Storage::putFile('avatars', $request->file('avatar'));
 ```
 
 #### 指定檔名
-#### 指定磁碟
+若不想讓Laravel自行產生檔名，則可改用storeAs或putFileAs兩種方法
+ - storeAs<br/>
+ 接受的參數依序為路徑、檔名及可選的磁碟名稱。同樣地，調用後返回完整路徑。
+```
+$path = $request->file('avatar')->storeAs(
+    'avatars', $request->user()->id
+);
+```
+ - putFileAs
+```
+$path = Storage::putFileAs(
+    'avatars', $request->file('avatar'), $request->user()->id
+);
+```
 
-### 檔案可視性
+### 檔案能見度
+在Laravel中，能見度指的是跨平台檔案權限的一種抽象化。檔案可以被宣告成public或private，當宣告成<br/>
+public時，意味著檔案是可以被所有人訪問的。例如，S3驅動下的public file就可有對應的URL可以取得。
+
+存儲新檔案時指定能見度
+```
+use Illuminate\Support\Facades\Storage;
+
+Storage::put('file.jpg', $contents, 'public');
+```
+
+對已存在檔案取得或指定能見度
+```
+// 取得能見度
+$visibility = Storage::getVisibility('file.jpg');
+
+// 設定能見度
+Storage::setVisibility('file.jpg', 'public')
+```
 
 ### 刪除檔案
+使用方法為Storage Facade的delete方法，可指定單一檔案或用陣列存放多個欲刪除的檔案
+```
+use Illuminate\Support\Facades\Storage;
+
+Storage::delete('file.jpg');
+
+Storage::delete(['file.jpg', 'file2.jpg']);
+```
+指定從哪一個磁碟刪除檔案
+```
+use Illuminate\Support\Facades\Storage;
+
+Storage::disk('s3')->delete('folder_path/file_name.jpg');
+```
 
 ## 目錄操作
+### 從單一目錄取得所有檔案
+方法files會回傳目錄的所有檔案，並使用陣列存放，只是不會包含子目錄內的檔案。若要連同子目錄檔案<br/>
+一併列出，須改用allFiles方法。
+```
+use Illuminate\Support\Facades\Storage;
+
+$files = Storage::files($directory);
+
+$files = Storage::allFiles($directory);
+```
+### 從單一目錄取得所有目錄
+方法directories：取得所有第一層子目錄<br/>
+方法allDirectories：取得所有各層的子目錄
+```
+$directories = Storage::directories($directory);
+
+// Recursive...
+$directories = Storage::allDirectories($directory);
+```
+### 創建目錄
+使用makeDirectory創建目錄，路徑中的不存在子目錄也會一併創建。
+```
+Storage::makeDirectory($directory);
+```
+
+### 刪除目錄
+使用deleteDirectory刪除目錄，會連同目錄內檔案一併移除。
+```
+Storage::deleteDirectory($directory);
+```
 
 ## 客製檔案系統
+隨然Laravel提供了數種檔案系統的驅動，但仍為開發者提供了客製檔案系統的能力。Laravel還有<br/>
+多個Adapter來使用其他的檔案儲存系統。除了直接使用該Adapter外，能過透過客製驅動來使用這些<br/>
+Adapter提供的檔案儲存系統。<br/>
+
+以Dropbox為例，<br/>
+先安裝對應的Composer套件
+```
+composer require spatie/flysystem-dropbox
+```
+接著，建立服務提供者，並在boot方法內部使用Storage Facade的extend方法來擴充可用的驅動。
+```
+<?php
+
+namespace App\Providers;
+
+use Storage;
+use League\Flysystem\Filesystem;
+use Illuminate\Support\ServiceProvider;
+use Spatie\Dropbox\Client as DropboxClient;
+use Spatie\FlysystemDropbox\DropboxAdapter;
+
+class DropboxServiceProvider extends ServiceProvider
+{
+    /**
+     * Perform post-registration booting of services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        Storage::extend('dropbox', function ($app, $config) {
+            $client = new DropboxClient(
+                $config['authorization_token']
+            );
+
+            return new Filesystem(new DropboxAdapter($client));
+        });
+    }
+
+    /**
+     * Register bindings in the container.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        //
+    }
+}
+```
+Storage Facade的extend方法參數定義依序如下：
+ - 參數一：所定義的驅動名稱
+ - 參數二：閉包，並依序接收$app與$config兩個變數，閉包中必須返回League\Flysystem\Filesystem實例。<br/>
+                   $config變數則包含了config/filesystems內指定磁碟的設定。
+
+一旦定義好了服務提供者，並定義好擴充，往後就可以在config/filesystems中使用dropbox驅動。

@@ -62,6 +62,8 @@ Laravel development environment - using laradock<br/>
 #### [ - Middleware](https://github.com/Internaltide/Laradep/blob/master/laratopics/Middleware.md)
 #### [ - CSRF Protection](https://github.com/Internaltide/Laradep/blob/master/laratopics/CSRF.md)
 #### [ - Controllers](https://github.com/Internaltide/Laradep/blob/master/laratopics/Controller.md)
+#### [ - Requests](https://github.com/Internaltide/Laradep/blob/master/laratopics/Requests.md)
+#### [ - Responses](https://github.com/Internaltide/Laradep/blob/master/laratopics/Responses.md)
 ### Frontend
 #### [ - Laravel Mix](https://github.com/Internaltide/Laradep/blob/master/laratopics/LaravelMix.md)
 #### [ - Localization](https://github.com/Internaltide/Laradep/blob/master/laratopics/Localization.md)

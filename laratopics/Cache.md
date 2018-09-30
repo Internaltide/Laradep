@@ -238,5 +238,121 @@ cache(['key' => 'value'], now()->addSeconds(10));
 PS. 在測試時使用Helper Function cache時，可以使用Cache::shouldReceive，就好像在測試Facade一樣。
 
 ## 快取標籤
+file或database這類的快取驅動並不支援快取標籤。對於永久性儲存快取來說，要使用多個快取標籤<br/>
+的話，使用memcached這類的驅動會有比較好的效能，因為可以自動清除舊的紀錄。<br/>
+
+快取標籤被用來標記快取資料，透過指定特定標籤，可以刪除或存取關聯的快取資料。<br/>
+
+### 寫入被標記的快取資料
+資料存入快取的同時也進行標記
+```
+Cache::tags(['people', 'artists'])->put('John', $john, $minutes);
+
+Cache::tags(['people', 'authors'])->put('Anne', $anne, $minutes);
+```
+
+### 存取被標記的快取資料
+傳遞相同排序的標籤陣列來取得特定鍵值的快取資料
+(需要同時具有所有標籤且排序相同??? 待測試)
+```
+$john = Cache::tags(['people', 'artists'])->get('John');
+
+$anne = Cache::tags(['people', 'authors'])->get('Anne');
+```
+
+### 移除被標記的快取資料
+可清空單一標記或一組標記的快取資料。下面例子中，標記有people、authors或同時具有兩者的快取資料，<br/>
+皆會被移除。
+```
+Cache::tags(['people', 'authors'])->flush();
+```
+
 ## 擴充自定的快取驅動
+客製的快取驅動需要實作 **Illuminate\Contracts\Cache\Store** 介面，以自製的MongoDB快取實作為例，<br/>
+其驅動看起來就像下面這樣。實作時，需使用MongoDB的連接來完成，可參考Laravel的Illuminate\Cache\MemcachedStore
+```
+<?php
+
+namespace App\Extensions;
+
+use Illuminate\Contracts\Cache\Store;
+
+class MongoStore implements Store
+{
+    public function get($key) {}
+    public function many(array $keys);
+    public function put($key, $value, $minutes) {}
+    public function putMany(array $values, $minutes);
+    public function increment($key, $value = 1) {}
+    public function decrement($key, $value = 1) {}
+    public function forever($key, $value) {}
+    public function forget($key) {}
+    public function flush() {}
+    public function getPrefix() {}
+}
+```
+在App\Providers\AppServiceProvider或自建的服務提供者中進行擴充綁定，以便後續可以配置使用。<br/>
+extend方法中，第一參數為客製驅動的自訂名稱，即用在設定檔中的驅動名稱。第二參數則為一個閉包，<br/>
+該閉包將傳遞進一個服務容器$app物件，並回傳Illuminate\Cache\Repository這個實例。
+```
+<?php
+
+namespace App\Providers;
+
+use App\Extensions\MongoStore;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\ServiceProvider;
+
+class CacheServiceProvider extends ServiceProvider
+{
+    /**
+     * Perform post-registration booting of services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        Cache::extend('mongo', function ($app) {
+            return Cache::repository(new MongoStore);
+        });
+    }
+
+    /**
+     * Register bindings in the container.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        //
+    }
+}
+```
+
 ## 快取事件
+若要在每一次快取操作執行額外程式，可以設定監聽快取觸發事件。一般而言，會將事件監聽器放在<br/>
+EventServiceProvider的boot方法中。
+```
+/**
+ * The event listener mappings for the application.
+ *
+ * @var array
+ */
+protected $listen = [
+    'Illuminate\Cache\Events\CacheHit' => [
+        'App\Listeners\LogCacheHit',
+    ],
+
+    'Illuminate\Cache\Events\CacheMissed' => [
+        'App\Listeners\LogCacheMissed',
+    ],
+
+    'Illuminate\Cache\Events\KeyForgotten' => [
+        'App\Listeners\LogKeyForgotten',
+    ],
+
+    'Illuminate\Cache\Events\KeyWritten' => [
+        'App\Listeners\LogKeyWritten',
+    ],
+];
+```

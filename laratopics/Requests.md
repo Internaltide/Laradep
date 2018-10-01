@@ -254,7 +254,7 @@ Laravel也提供了等價的全域輔助方法old，這方法可以更方便地�
 
 ## Cookies
 ### 從請求中取得Cookie
-由Laravel建立的Cookie都會經過加密並附加認證記號。這意味著當客戶端擅自異動Cookie值時，Cookie就會失效。<br/>
+由Laravel建立的Cookie都會經過加密並簽署。這意味著當客戶端擅自異動Cookie值時，Cookie就會失效。<br/>
 你可以使用Request實例的cookie方法來從請求中取得Cookie資料。
 ```
 $value = $request->cookie('name');
@@ -283,8 +283,8 @@ return response('Hello World')->cookie(
     'name', 'value', $minutes, $path, $domain, $secure, $httpOnly
 );
 ```
-也可以透過cookie facade的queue方法將cookie資料放進佇列中，隨後響應傳遞到瀏覽器前，Laravel<br/>
-會自動將佇列中的cookie資料附加進響應實例中。該方法同時接受單一的cookie實例或創建cookie所需的參數。
+或者也可使用Cookie Facade的queue來附加一組 Cookies 到即將輸出的回應上。queue 方法接受一個  Cookie 實例或<br/>
+建立 Cookie 實例所需的參數。在發送回應到瀏覽器之前，這些 cookie 會被附加到即將輸出的回應上。
 ```
 Cookie::queue(Cookie::make('name', 'value', $minutes));
 

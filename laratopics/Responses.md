@@ -209,7 +209,7 @@ return response()
             ->json(['name' => 'Abigail', 'state' => 'CA'])
             ->withCallback($request->input('callback'));
 ```
-[What is JSONP?](https://github.com/Internaltide/Laradep/blob/master/laratopics/Responses.md#JSONP)
+[What is JSONP?](https://github.com/Internaltide/Laradep/blob/master/laratopics/Responses.md#jsonp)
 
 ### 檔案下載
 使用download方法可以產生一個回應強制使用者的瀏覽器下載檔案。download方法接受一個檔案名稱作為<br/>
@@ -278,7 +278,7 @@ return response()->caps('foo');
 ```
 
 >
-> ## JSOP
+> ## JSONP
 >
 > JSONP是JSON with Padding的縮寫，一種在JSON數據基礎上附加Javascript的封裝訊息，一般形式如下：<br/>
 > **callback(** {"id":123, "name":"sala"} **)**<br/>

@@ -201,12 +201,15 @@ return response()->json([
     'state' => 'CA'
 ]);
 ```
-如果需要的是一個JSONP回應，你應合併調用json方法與withCallback方法
+如果需要的是一個JSONP回應，你應合併調用json方法與withCallback方法，<br/>
+withCallback方法會替JSON數據附加上Javascript的封裝，而添加的Javascript部分就是所謂的padding。<br/>
+一般形式會類似callback( {"id":123, "name":"Sala"} )
 ```
 return response()
             ->json(['name' => 'Abigail', 'state' => 'CA'])
             ->withCallback($request->input('callback'));
 ```
+[What is JSONP?](https://github.com/Internaltide/Laradep/blob/master/laratopics/Responses.md#JSONP)
 
 ### 檔案下載
 使用download方法可以產生一個回應強制使用者的瀏覽器下載檔案。download方法接受一個檔案名稱作為<br/>
@@ -273,3 +276,35 @@ macro方法接受一個回應的名稱作為它的第一個參數，並將閉包
 ```
 return response()->caps('foo');
 ```
+
+>
+> ## JSOP
+>
+> JSONP是JSON with Padding的縮寫，一種在JSON數據基礎上附加Javascript的封裝訊息，一般形式如下：<br/>
+> **callback(** {"id":123, "name":"sala"} **)**<br/>
+>
+> 其中，添加的Javascript部分即稱為**padding**，將JSON數據做為指定函數的參數，就能將JSON數據<br/>
+> 放進函數內部處理。因此透過HTML中的script元素將JSOP數據載入後，就可以調用回調函數並於其內<br/>
+> 部操作JSON數據。注意!! 回調函數必須事先在讀取JSOP數據的script元素所在頁面中指定好。如下：<br/>
+> &lt;script src="https://api.whatsoft.com/v1/users?callback=callback"&gt;<br/>
+>&lt;script src="https://api.whatsoft.com/v1/users?callback=cbfunc"&gt;<br/>
+>
+> **為何要這麼使用？**<br/>
+> 這是為了解決因同源政策導致無法跨域訪問的問題。典型的XHTTPRequest，因為安全性問題，<br/>
+> 會受到同源政策的限制 ，使其只能存取同一個網域內的資源，導致諸多不方便。為了突破這限制，<br/>
+> 遂使用不在同源政策限制範疇內的script元素，利用其載入JSONP來做跨域的訪問。<br/>
+>
+> **JQuery對JSONP的支援**<br/>
+> 通過在URL的查詢參數值後面附加符號 **?** ，JQuery便能識別出這是來自JSONP的訪問，然後<br/>
+> 自動產生回調函數，並設置該函數名進行處理<br/>
+> ~~~
+> <script>
+>     (function(){
+>         var api = "https://api.whatsoft.com/v1/users/123?callback=?";
+>         $.getJSON( api, function(data){
+>             // 操作data這個JSON數據
+>         });
+>     })();
+> </script>
+> ~~~
+>

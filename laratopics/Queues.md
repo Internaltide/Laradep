@@ -452,7 +452,6 @@ PS. 執行重啟時，原處理器程序會被kill掉。所以，你仍需要使
 #### 任務過期
 透過在配置檔裡每個連線配置的retry_after定義重新嘗試執行任務前所必須等待的時間秒數。<br/>
 例如，retry_after被設定成90，則任務執行90秒後沒被刪除時，就會重新放回佇列中。<br/>
-(疑問!! 這樣不就不能使用單一任務進行小批次處理囉!! 不然重新放回佇列中，不就重複執行了嗎?)<br/>
 也因為這樣，通常你應該使用任務可能執行的最長時間來做為其配置值。<br/>
 > 注意!! Amazon SQS佇列驅動並不支援retry_after配置，你必須改用AWS控制台來設定任務[的Default Visibility Timeout](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/AboutVT.html)
 

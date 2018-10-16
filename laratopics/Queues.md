@@ -477,27 +477,276 @@ timeout特性是將執行該任務的子進程殺掉，retry_after則是將任�
   php artisan queue:work --sleep=3
   ```
 
-## 管理員設定
+## 進程管理器Supervisor設定
+使用Supervisor可以確保當佇列處理器程序失敗時，可以自動重啟。
+
+### 安裝
+Ubuntu下安裝supervisor
+```
+sudo apt-get install supervisor
+```
+CentOS下安裝supervisor(來自網路資源，未測試)
+```
+yum install python-setuptools
+
+easy_install supervisor
+#或者是
+pip install supervisor
+```
+> ~~~
+> 如果自行配置Supervisor有困難的話，可以使用Laravel Forge這個套件，它將會為你的Laravel應用自動安裝
+> 並配置Supervisor。
+> ~~~
+
+## 配置
+一般來說Supervisor的配置檔案會放在 **/etc/supervisor/conf.d** 這個目錄，該目錄下可以創件多個<br/>
+配置檔案用來定義進程如何被Supervisor來控管。例如，我們建立了一個laravel-worker.conf配置檔案，<br/>
+其用來控管queue:work所產生的進程。
+```
+[program:laravel-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php /home/forge/app.com/artisan queue:work sqs --sleep=3 --tries=3
+autostart=true
+autorestart=true
+user=forge
+numprocs=8
+redirect_stderr=true
+stdout_logfile=/home/forge/app.com/worker.log
+```
+在上例這個配置中，示意Supervisor運行8個queue:work進程，並監控著它們，在進程失敗時<br/>
+進行自動重啟。
+
+## 啟動Supervisor
+一旦配置檔被建立，你就可以更新配置資訊並啟動Supervisor。
+```
+sudo supervisorctl reread
+
+sudo supervisorctl update
+
+sudo supervisorctl start laravel-worker:*
+```
+更多的資訊，請參考[Supervisor documentation](http://supervisord.org/index.html)
 
 ## 處理失敗的任務
+有時候佇列任務會執行失敗，失敗時會進行重試，當超過了設定最大嘗試次數後，該任務資料<br/>
+就會被新增到failed_jobs這個資料表中。<br/>
+
+建立failed_jobs資料表
+```
+php artisan queue:failed-table
+
+php artisan migrate
+```
+
+記得為您的處理器進程加上最大重試次數的選項，否則該進程將會無限重試。
+```
+php artisan queue:work redis --tries=3
+```
+
 ### 清除失敗任務
+在任務類別中可以直接創建failed這個方法，該方法用來定義當任務失敗後，該如何清除它。<br/>
+可能是向用戶發送Alert或者還原操作，你也可以透過型別提示將例外注入，該例外代表的是<br/>
+導致任務失敗的錯誤。
+```
+<?php
+
+namespace App\Jobs;
+
+use Exception;
+use App\Podcast;
+use App\AudioProcessor;
+use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
+
+class ProcessPodcast implements ShouldQueue
+{
+    use InteractsWithQueue, Queueable, SerializesModels;
+
+    protected $podcast;
+
+    /**
+     * Create a new job instance.
+     *
+     * @param  Podcast  $podcast
+     * @return void
+     */
+    public function __construct(Podcast $podcast)
+    {
+        $this->podcast = $podcast;
+    }
+
+    /**
+     * Execute the job.
+     *
+     * @param  AudioProcessor  $processor
+     * @return void
+     */
+    public function handle(AudioProcessor $processor)
+    {
+        // Process uploaded podcast...
+    }
+
+    /**
+     * The job failed to process.
+     *
+     * @param  Exception  $exception
+     * @return void
+     */
+    public function failed(Exception $exception)
+    {
+        // Send user notification of failure, etc...
+    }
+}
+```
+
 ### 任務失敗事件
+如果你想註冊一些在任務失敗後會被調用的事件，你可以使用Queue::failing這個方法。<br/>
+在事件觸發後，我們可以通過email或stride來通知團隊。例如，我們可以在AppServiceProvider<br/>
+裡頭註冊該事件的回調函數。
+```
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Queue\Events\JobFailed;
+use Illuminate\Support\ServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Bootstrap any application services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        Queue::failing(function (JobFailed $event) {
+            // $event->connectionName
+            // $event->job
+            // $event->exception
+        });
+    }
+
+    /**
+     * Register the service provider.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        //
+    }
+}
+```
+
 ### 任務失敗重試
+使用Artisan指令查看目前failed_jobs這個資料表存在哪些失敗任務，並列出以下資訊如<br/>
+任務ID、連線、佇列實體以及失敗時間。
+```
+php artisan queue:failed
+```
+
+透過任務ID指定重試特定任務或使用all來示意重試所有任務
+```
+// 重試ID為5的任務
+php artisan queue:retry 5
+
+// 重試所有任務
+php artisan queue:retry all
+```
+
+透過任務ID移除特定任務
+```
+php artisan queue:forget 5
+```
+
+移除所有失敗任務
+```
+php artisan queue:flush
+```
 
 ## 任務事件
+使用Queue facade的before跟after可以定義佇列任務執行前後的回調函數，用以處理任務前後的工作，<br/>
+如日誌的寫入或統計資料的新增等。一般來說，你應該在服務提供者類別內調用該方法。
+```
+<?php
 
+namespace App\Providers;
+
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Queue\Events\JobProcessed;
+use Illuminate\Queue\Events\JobProcessing;
+
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Bootstrap any application services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        Queue::before(function (JobProcessing $event) {
+            // $event->connectionName
+            // $event->job
+            // $event->job->payload()
+        });
+
+        Queue::after(function (JobProcessed $event) {
+            // $event->connectionName
+            // $event->job
+            // $event->job->payload()
+        });
+    }
+
+    /**
+     * Register the service provider.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        //
+    }
+}
+```
+
+使用Queue facade的looping方法則用來定義處理器從佇列取出任務之前的會回調函數。例如，回滾<br/>
+之前執行失敗的任務所產生的未關閉事務。
+```
+Queue::looping(function () {
+    while (DB::transactionLevel() > 0) {
+        DB::rollBack();
+    }
+});
+```
 
 >
 > ## Key Hash Tag For Redis Cluster
 >
-> Redis的叢集架構支援一次調用多個Key的資料操作(Multi-Key)，只是Redis叢集卻無法跨節點操作。所以，
-> 為了Multi-Key在叢集上也能正常運作，Redis叢集實現了Key Hash Tag的概念，簡單說就是讓每個KeyName都
-> 可以再額外包含一個Tag，該Tag會用{}來包裹，其可用來強制某些Keys的資料都可以被儲存於同一個節點上。
+> Redis的叢集架構支援一次調用多個Key的資料操作(Multi-Key)，只是Redis叢集卻無法跨節點操作。所以，<br/>
+> 為了Multi-Key在叢集上也能正常運作，Redis叢集實現了Key Hash Tag的概念，簡單說就是讓每個KeyName都<br/>
+> 可以再額外包含一個Tag，該Tag會用{}來包裹，其可用來強制某些Keys的資料都可以被儲存於同一個節點上。<br/>
 >
-> 而其機制如下：
-> 當KeyName內含Hash Tag時，就會使用該Tag來計算資料的儲存位置；反之，則使用Key來求得儲存位置。因此，
-> 對於foo、{foo}.teacher、{foo}.student、{shh}.roommate、shh這五個Key Name來說，前三筆資料會存放在同一個
-> 節點，後兩筆資料放在同一個節點。
+> 而其機制如下：<br/>
+> 當KeyName內含Hash Tag時，就會使用該Tag來計算資料的儲存位置；反之，則使用Key來求得儲存位置。因此，<br/>
+> 對於foo、{foo}.teacher、{foo}.student、{shh}.roommate、shh這五個Key Name來說，前三筆資料會存放在同一個<br/>
+> 節點，後兩筆資料放在同一個節點。<br/>
+>
+> ~~~
+>
+
+>
+> ## Supervisor
+>
+> Supervisor 是一個進程控制系統，是一個Client / Server的服務。服務端為supervisord，客戶端為用來控制<br/>
+> 進程啟動的supervisorctl。同時，它也提供了一個web介面，使我們可以更方便的進行進程的管理及日誌<br/>
+> 查看。使用Supervisor後，它將為您維護指定的進程，在他們Crash時進行重啟。<br/>
+> [參考資料](https://blog.csdn.net/qq_27754983/article/details/78782866)
 >
 > ~~~
 >

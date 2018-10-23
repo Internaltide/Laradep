@@ -67,6 +67,7 @@ Laravel development environment - using laradock<br/>
 #### [ - Views](https://github.com/Internaltide/Laradep/blob/master/laratopics/Views.md)
 #### [ - URL Generation](https://github.com/Internaltide/Laradep/blob/master/laratopics/UrlGeneration.md)
 #### [ - Error Handling](https://github.com/Internaltide/Laradep/blob/master/laratopics/ErrorHandle.md)
+#### [ - Logging ](https://github.com/Internaltide/Laradep/blob/master/laratopics/Logging.md)
 ### Frontend
 #### [ - Laravel Mix](https://github.com/Internaltide/Laradep/blob/master/laratopics/LaravelMix.md)
 #### [ - Localization](https://github.com/Internaltide/Laradep/blob/master/laratopics/Localization.md)

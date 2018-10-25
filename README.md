@@ -80,7 +80,7 @@ Laravel development environment - using laradock<br/>
 #### [ - Cache](https://github.com/Internaltide/Laradep/blob/master/laratopics/Cache.md)
 #### [ - File Storage](https://github.com/Internaltide/Laradep/blob/master/laratopics/FileStorage.md)
 #### [ - Queues](https://github.com/Internaltide/Laradep/blob/master/laratopics/Queues.md)
-### Database
+#### [ - Task Scheduling ](https://github.com/Internaltide/Laradep/blob/master/laratopics/TaskSchedule.md)
 #### [ - Getting Started](https://github.com/Internaltide/Laradep/blob/master/laratopics/GettingDatabaseStart.md)
 #### [ - Query Builder](https://github.com/Internaltide/Laradep/blob/master/laratopics/QueryBuilder.md)
 #### [ - Pagination](https://github.com/Internaltide/Laradep/blob/master/laratopics/Pagination.md)

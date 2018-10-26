@@ -192,7 +192,7 @@ $schedule->command('emails:send')->withoutOverlapping();
 在上面的例子中，emails:send這個Artisan指令如果不是真正執行中，會每分鐘都嘗試執行一次。如果<br/>
 各個排程任務執行時間差異甚大，無法準確預估執行時間，withoutOverlapping方法就會非常有用。<br/>
 
-你也可以指定withoutOverlapping的鎖的有效時間，即定義鎖過期前經過的時間，預設是24小時。
+你也可以指定withoutOverlapping鎖的有效時間，即定義鎖過期前經過的時間，預設是24小時。
 ```
 $schedule->command('emails:send')->withoutOverlapping(10);
 ```
@@ -224,4 +224,59 @@ $schedule->command('emails:send')->evenInMaintenanceMode();
 ```
 
 ## 任務輸出
+Laravel指令排程器為任務輸出提供許多方便的方法。首先可以透過sendOutputTo方法將資料輸出<br/>
+到某個檔案中，以做為後續排程執行結果的檢查依據。
+```
+$schedule->command('emails:send')
+         ->daily()
+         ->sendOutputTo($filePath);
+```
+
+若你是想要將輸出**附加**到某個檔案上，則可以改用方法appendOutputTo
+```
+$schedule->command('emails:send')
+         ->daily()
+         ->appendOutputTo($filePath);
+```
+
+除了輸出到檔案外，你還可以透過emailOutputTo這個方法將輸出資料寄送到某個Email Address，<br/>
+只是在使用該方法之前，記得先配置好Laravel的郵件服務。
+```
+$schedule->command('foo')
+         ->daily()
+         ->sendOutputTo($filePath)
+         ->emailOutputTo('foo@example.com');
+```
+
+> ~~~
+> emailOutputTo、sendOutputTo 和 appendOutputTo這三個方法只適用於command與exec。換句話說，你
+> 只能在使用command或exec後鏈接這些輸出方法。
+> ~~~
+
 ## 任務鉤子
+你可以透過 **before** 或 **after** 這兩個方法在任務完成前後執行定的代碼。
+```
+$schedule->command('emails:send')
+         ->daily()
+         ->before(function () {
+             // Task is about to start...
+         })
+         ->after(function () {
+             // Task is complete...
+         });
+```
+
+## Ping URL
+使用個功能前，你必須具有Guzzle HTTP這個函式庫，你可以透過下列指令來安裝該依賴套件。
+```
+composer require guzzlehttp/guzzle
+```
+
+透過 **pingBefore** 與 **thenPing** 兩種方法，排程器能自動在任務完成前後去ping一個特定的網址。<br/>
+此方法在你排定的任務進行或完成時，能夠有效的通知一個外部服務，例如**Laravel Envoyer**。
+```
+$schedule->command('emails:send')
+         ->daily()
+         ->pingBefore($url)
+         ->thenPing($url);
+```

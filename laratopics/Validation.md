@@ -136,6 +136,7 @@ session中。注意!! 我們並不需要在路由中明確的把錯誤訊息綁�
 #### 關於可選欄位的說明
 預設，Laravel 含有 TrimStrings、ConvertEmptyStringsToNull 這兩個全域的中介層。所以，如果你不想要讓驗證器<br/>
 認為 null 值是無效的，你就需要把「可選」的請求欄位標註為 nullable。
+(這裡所謂的null值視為無效應該是指被視為是無效值而判定不存在，所以對應的規則就不會執行檢查)
 ```
 $request->validate([
     'title' => 'required|unique:posts|max:255',
@@ -483,5 +484,200 @@ $v->sometimes(['reason', 'cost'], 'required', function ($input) {
 PS. 傳入閉包的 $input 參數是 Illuminate\Support\Fluent 實例，可以用來取得輸入的資料和檔案。
 
 ## 驗證陣列
+驗證從表單提交過來的陣列資料並不困難，可以使用「.」符號來驗證陣列中的屬性。比如說傳入的 HTTP 請求包含了<br/>
+photos[profile]這樣的資料時，就可以像下方這樣驗證。
+```
+$validator = Validator::make($request->all(), [
+    'photos.profile' => 'required|image',
+]);
+```
+
+也可以驗證陣列中的每個元素。例如，驗證給定的某欄位之陣列資料中的 e-mail 都是唯一。
+```
+$validator = Validator::make($request->all(), [
+    'person.*.email' => 'email|unique:users',
+    'person.*.first_name' => 'required_with:person.*.last_name',
+]);
+```
+
+同樣地，也可以在語系檔中用 * 字元來定義驗證訊息。
+```
+'custom' => [
+    'person.*.email' => [
+        'unique' => 'Each person must have a unique e-mail address',
+    ]
+],
+```
 
 ## 自訂驗證規則
+
+### 使用規則物件
+Laravel提供了各式各樣的驗證規則，然而，你可能會想定義一些自己的規則。你可以使用規則物件來註冊一個<br/>
+客製的驗證規則，而使用Artisan指令make:rule就可以初始化一個新的規則物件並存放到app/Rules目錄下。<br/>
+
+假設我們建立一個規則物件用來驗證字串是否為大寫
+```
+php artisan make:rule Uppercase
+```
+
+一但規則物件被建立後，我們就可以著手定義它的行為。一個規則物件會包含**passes** 和 **message**兩種物件。<br/>
+ - passes 方法接收屬性值和名稱，被用來定義驗證規則，會根據屬性值是否合法來回傳 true 或 false。
+ - message 方法則回傳驗證失敗時使用的錯誤訊息。<br/>
+ ```
+<?php
+
+namespace App\Rules;
+
+use Illuminate\Contracts\Validation\Rule;
+
+class Uppercase implements Rule
+{
+    /**
+     * Determine if the validation rule passes.
+     *
+     * @param  string  $attribute
+     * @param  mixed  $value
+     * @return bool
+     */
+    public function passes($attribute, $value)
+    {
+        return strtoupper($value) === $value;
+    }
+
+    /**
+     * Get the validation error message.
+     *
+     * @return string
+     */
+    public function message()
+    {
+        return 'The :attribute must be uppercase.';
+    }
+}
+ ```
+當然，你可以在message方法中使用輔助方法trans來從語係檔中擷取錯誤訊息。
+```
+/**
+ * Get the validation error message.
+ *
+ * @return string
+ */
+public function message()
+{
+    return trans('validation.uppercase');
+}
+```
+定義好規則後，可以藉由傳遞規則物件實例來附加到其他的驗證規則中
+```
+use App\Rules\Uppercase;
+
+$request->validate([
+    'name' => ['required', 'string', new Uppercase],
+]);
+```
+
+### 使用閉包
+如果你只需要在應用程式中使用某客製規則一次而已，沒有重複使用的需求，你可以簡單的使用閉包函數來達成目的。<br/>
+該閉包函數可以接受屬性的名稱與值，也接受一個如範例中一樣的回調函數$fail，其會在驗證失敗後被調用。
+```
+$validator = Validator::make($request->all(), [
+    'title' => [
+        'required',
+        'max:255',
+        function($attribute, $value, $fail) {
+            if ($value === 'foo') {
+                return $fail($attribute.' is invalid.');
+            }
+        },
+    ],
+]);
+```
+
+### 使用擴充方法
+另一個註冊自訂規則的方式為使用 Validator Facade 的 extend 方法，我們可以在服務提供者內部使用該方法進行<br/>
+自訂規則的註冊。
+```
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Validator;
+
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Bootstrap any application services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        Validator::extend('foo', function ($attribute, $value, $parameters, $validator) {
+            return $value == 'foo';
+        });
+    }
+
+    /**
+     * Register the service provider.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        //
+    }
+}
+```
+自訂的驗證閉包接收四個參數：驗證的屬性名稱、屬性的值、傳入驗證規則的參數陣列及驗證器實例。除了使用閉包，<br/>
+你也可以傳入類別和方法到 extend 方法中而非閉包。
+```
+Validator::extend('foo', 'FooValidator@validate');
+```
+
+#### 定義錯誤訊息
+你也需要對客製的驗證規則定義其錯誤訊息，可以使用行內的自訂訊息陣列或在驗證語系檔中添加對應的訊息條目。<br/>
+但記住!! 這個訊息應該被放在陣列的第一層，而不是放在對應特定屬性錯誤訊息的 custom 陣列：
+```
+"foo" => "Your input was invalid!",
+
+"accepted" => "The :attribute must be accepted.",
+
+// The rest of the validation error messages...
+```
+
+當建立了自訂的驗證規則，有時也會需要客製錯誤訊息的佔位符，可以使用上述方式建立自訂的驗證器後，呼叫<br/>
+Validator  facade 的 replacer 方法，並且請在服務提供者中的 boot 方法來做這些事。
+```
+/**
+ * Bootstrap any application services.
+ *
+ * @return void
+ */
+public function boot()
+{
+    Validator::extend(...);
+
+    Validator::replacer('foo', function ($message, $attribute, $rule, $parameters) {
+        return str_replace(...);
+    });
+}
+```
+
+#### 隱性擴充
+預設情況下，如同 required 規則定義一般，當被驗證的屬性不存在或為空值時，則一般的驗證規則或包含自定的擴充，<br/>都不會被執行。以 unique 規則來說，當值為 null 時，該規則就不會被執行。
+```
+$rules = ['name' => 'unique'];
+
+$input = ['name' => null];
+
+Validator::make($input, $rules)->passes(); // return true
+```
+
+要當屬性為空時依然執行該規則，那麼該規則必須暗示該屬性為必填。要建立這樣的一個「隱式」擴充功能，可使用<br/>
+Validator::extendImplicit 方法。
+```
+Validator::extendImplicit('foo', function ($attribute, $value, $parameters, $validator) {
+    return $value == 'foo';
+});
+```

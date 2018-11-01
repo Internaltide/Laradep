@@ -174,7 +174,7 @@ $request->session()->flush();
 ```
 
 ### 重新產生Session ID
-重新產生 Session ID 通常是為了預防惡意使用者利用 session fixation 來攻擊你的應用程式。如果使用的是內建的<br/>
+重新產生 Session ID 通常是為了預防惡意使用者利用 [session fixation](https://github.com/Internaltide/Laradep/blob/master/laratopics/Session.md#session-fixation) 來攻擊你的應用程式。如果使用的是內建的<br/>
 LoginController，Laravel就會在認證過程中自動重新產生 Session ID。然而，如果你需要手動重新產生 Session ID，<br/>
 可以使用 regenerate 方法。
 ```
@@ -263,3 +263,16 @@ class SessionServiceProvider extends ServiceProvider
 ```
 一但新的驅動被註冊好之後，就可以在config/session設定檔中配置使用該客製驅動。以上面的例子來說，你就可以<br/>
 使用配置mongo來使用你客製好的驅動。
+
+
+
+## 補充
+**Session Fixation**
+> ~~~
+> 一種session的攻擊方式，攻擊者誘使受害者使用特定的 Session ID 登入網站，而攻擊者就能取得受害者的身分。
+> 步驟大致為：
+> 1. 攻擊者會先使用自己的帳號登入網站以取得一個有效的 Session ID
+> 2. 使用社交工程等手法誘使受害者點選連結，讓受害者使用該 Session ID 登入網站
+> 3. 受害者輸入帳號密碼成功登入網站
+> 4. 攻擊者使用該 Session ID，操作受害者的帳號
+> ~~~

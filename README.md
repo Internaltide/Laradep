@@ -80,6 +80,7 @@ Laravel development environment - using laradock<br/>
 ### Digging Deeper
 #### [ - Mail](https://github.com/Internaltide/Laradep/blob/master/laratopics/Mail.md)
 #### [ - Cache](https://github.com/Internaltide/Laradep/blob/master/laratopics/Cache.md)
+#### [ - Events](https://github.com/Internaltide/Laradep/blob/master/laratopics/Events.md)
 #### [ - File Storage](https://github.com/Internaltide/Laradep/blob/master/laratopics/FileStorage.md)
 #### [ - Queues](https://github.com/Internaltide/Laradep/blob/master/laratopics/Queues.md)
 #### [ - Task Scheduling ](https://github.com/Internaltide/Laradep/blob/master/laratopics/TaskSchedule.md)

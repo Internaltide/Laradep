@@ -78,13 +78,15 @@ Laravel development environment - using laradock<br/>
 #### [ - Encryption & Hashing](https://github.com/Internaltide/Laradep/blob/master/laratopics/Encryption.md)
 #### [ - Password Reset](https://github.com/Internaltide/Laradep/blob/master/laratopics/PasswordReset.md)
 ### Digging Deeper
-#### [ - Mail](https://github.com/Internaltide/Laradep/blob/master/laratopics/Mail.md)
+#### [ - Artisan Console](https://github.com/Internaltide/Laradep/blob/master/laratopics/ArtisanConsole.md)
 #### [ - Cache](https://github.com/Internaltide/Laradep/blob/master/laratopics/Cache.md)
 #### [ - Events](https://github.com/Internaltide/Laradep/blob/master/laratopics/Events.md)
 #### [ - File Storage](https://github.com/Internaltide/Laradep/blob/master/laratopics/FileStorage.md)
+#### [ - Mail](https://github.com/Internaltide/Laradep/blob/master/laratopics/Mail.md)
+#### [ - Notifications](https://github.com/Internaltide/Laradep/blob/master/laratopics/Notifications.md)
 #### [ - Queues](https://github.com/Internaltide/Laradep/blob/master/laratopics/Queues.md)
 #### [ - Task Scheduling ](https://github.com/Internaltide/Laradep/blob/master/laratopics/TaskSchedule.md)
-#### [ - Artisan Console](https://github.com/Internaltide/Laradep/blob/master/laratopics/ArtisanConsole.md)
+
 ### Database
 #### [ - Getting Started](https://github.com/Internaltide/Laradep/blob/master/laratopics/GettingDatabaseStart.md)
 #### [ - Query Builder](https://github.com/Internaltide/Laradep/blob/master/laratopics/QueryBuilder.md)

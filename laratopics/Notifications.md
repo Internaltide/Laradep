@@ -170,17 +170,494 @@ public function toMail($notifiable)
 ```
 
 #### 錯誤訊息
+有些通知是用來提醒使用者某些錯誤發生，像是付款失敗。你可以在建立通知訊息時利用 error 方法指出信件是與相關<br/>
+錯誤有關係的，並會改以紅色來呈現。
+```
+/**
+ * Get the mail representation of the notification.
+ *
+ * @param  mixed  $notifiable
+ * @return \Illuminate\Notifications\Message
+ */
+public function toMail($notifiable)
+{
+    return (new MailMessage)
+                ->error()
+                ->subject('Notification Subject')
+                ->line('...');
+}
+```
 
 ### 自訂收件者
-### 客製郵件主題
-### 客製郵件模板
+當通知是透過mail頻道來發送時，通知系統會自動從可通知實體中找尋email屬性。你也可以透過在實體內定義名為<br/>
+ routeNotificationForMail 的方法用來自訂寄送的 email 位置。
+```
+<?php
 
+namespace App;
+
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
+class User extends Authenticatable
+{
+    use Notifiable;
+
+    /**
+     * Route notifications for the mail channel.
+     *
+     * @param  \Illuminate\Notifications\Notification  $notification
+     * @return string
+     */
+    public function routeNotificationForMail($notification)
+    {
+        return $this->email_address;
+    }
+}
+```
+
+### 客製郵件主題
+預設郵件標題就是通知類別的名稱並經格式化後的字串。例如，通知類別名稱為 InvoicePaid，則該信件的預設標題就<br/>
+會是Invoice Paid。所以，如果想要指定一個明確的郵件標題，可以在建立訊息時調用 subject 方法。
+```
+/**
+ * Get the mail representation of the notification.
+ *
+ * @param  mixed  $notifiable
+ * @return \Illuminate\Notifications\Messages\MailMessage
+ */
+public function toMail($notifiable)
+{
+    return (new MailMessage)
+                ->subject('Notification Subject')
+                ->line('...');
+}
+```
+
+### 客製郵件模板
+你可以透過發佈通知套件的資源來修改信件通知使用的 HTML 和純文字模板。在使用指令發佈套件後，通知<br/>
+模板就會被放到 resources/views/vendor/notifications 這個目錄下。
+```
+php artisan vendor:publish --tag=laravel-notifications
+```
 
 ## Markdown郵件通知
+使用 Markdown 格式的郵件通知可享有利用預先構建郵件通知模板的好處，可以更加彈性地撰寫較長的自訂郵件內文。<br/>
+由於訊息採用 Markdown 格式撰寫，Laravel 能協助你將訊息渲染成美觀且具響應式的 HTML 模板，同時也能自動的<br/>
+產生相應的純文字格式。
+
+### 產生訊息
+你可以使用 Artisan 的 make:notification 指令並附加 --markdown 選項，即可產生通知類別的同時建立對應的 Markdown<br/>
+通知模板。
+```
+php artisan make:notification InvoicePaid --markdown=mail.invoice.paid
+```
+就像其它Mail通知一樣，使用Markdown模板的郵件通知也需要定義toMail方法。然而，我們不再需要使用諸如line<br/>
+和action方法，而是使用markdown方法指定使用的Markdown模板名稱。
+```
+/**
+ * Get the mail representation of the notification.
+ *
+ * @param  mixed  $notifiable
+ * @return \Illuminate\Notifications\Messages\MailMessage
+ */
+public function toMail($notifiable)
+{
+    $url = url('/invoice/'.$this->invoice->id);
+
+    return (new MailMessage)
+                ->subject('Invoice Paid')
+                ->markdown('mail.invoice.paid', ['url' => $url]);
+}
+```
+
+### 撰寫訊息
+Markdown 郵件通知搭配使用了 Blade 元件及 Markdown 標記語言，這使你可以更輕鬆建構郵件通知。同時還能使用<br/>
+Laravel 內建的方法。
+```
+@component('mail::message')
+# Invoice Paid
+
+Your invoice has been paid!
+
+@component('mail::button', ['url' => $url])
+View Invoice
+@endcomponent
+
+Thanks,<br>
+{{ config('app.name') }}
+@endcomponent
+```
+
+### 常用元件
+#### 按鈕元件
+該元件會建構一個置中的按鈕連結，並接受url與color兩種參數來定義按鈕的樣式。其中，顏色部分支援紅、綠、藍三種<br/>
+顏色。
+```
+@component('mail::button', ['url' => $url, 'color' => 'green'])
+View Invoice
+@endcomponent
+```
+
+#### 面板元件
+該元件用來渲染一個文字區塊，區塊會跟Markdown郵件通知有著不同的背景顏色。這個區塊讓你用來在郵件中建立一塊<br/>
+更吸引人注意的文字區塊。
+```
+@component('mail::panel')
+This is the panel content.
+@endcomponent
+```
+
+#### 表格元件
+該元件用以將Markdown表格轉換成Html表格。該元件直接受一個Markdown表格的內容，並且支持使用預設的 Markdown<br/>
+表格對齊符號來對齊表格欄位。
+```
+@component('mail::table')
+| Laravel       | Table         | Example  |
+| ------------- |:-------------:| --------:|
+| Col 2 is      | Centered      | $10      |
+| Col 3 is      | Right-Aligned | $20      |
+@endcomponent
+```
+
+### 客製化元件
+你可以將內建的Markdown元件匯出到應用程式並予以客製修改。若你要再發佈該元件，可以使用 Artisan 的 vendor:publish<br/>
+指令並附加標籤 laravel-mail 以發佈你的客製化元件。
+```
+php artisan vendor:publish --tag=laravel-mail
+```
+上述指令會將Markdown郵件元件發佈到resources/views/vendor/mail這個目錄下，該目錄下會包含了html與markdown<br/>
+兩個子目錄。各子目錄則包括個別元件對應的獨立樣式，你可以依照你的需求任意的客製這些元件。
+
+#### 客製CSS
+在匯出元件後，resources/views/vendor/mail/html/themes這個目錄就會含有一個預設的樣式定義default.css，你可以<br/>
+自訂這個檔案內的 CSS 樣式，該樣式會自動的套用在 Markdown 通知內的 HTML 中。
+> ~~~
+> 如果你想為 Markdown 元件建立全新的樣式，你可以輕易的在 html/themes 目錄內撰寫新的 CSS 檔案，並且更改
+> mail 設定檔案內的 theme 選項。
+> ~~~
+
+
 ## 資料庫通知
+### 先決條件
+database通知頻道會將訊息儲存在資料庫的表格中。該資料表包含了像是通知類型及JSON資料等用來描述通知的資訊。<br/>
+也因此你可以透過資料表查詢以在使用者應用程式介面中顯示通知。但在你這麼做之前，你必須先建立好這些資料表格。<br/>
+你可以透過Artisan的notifications:table這個指令來建立該表的遷移檔。
+```
+php artisan notifications:table
+
+php artisan migrate
+```
+
+### 格式化資料庫通知
+若是使用database這個通知頻道，你應該要在該通知類別中定義 toDatabase 及 toArray 兩種方法。這些方法可接受<br/>
+$notifiable實體並會返回一個 PHP 陣列，而該陣列將被編碼成 JSON 格式接著存放在 notifications 資料表中的 data<br/>欄位中。下面是一個toArray的例子。
+```
+/**
+ * Get the array representation of the notification.
+ *
+ * @param  mixed  $notifiable
+ * @return array
+ */
+public function toArray($notifiable)
+{
+    return [
+        'invoice_id' => $this->invoice->id,
+        'amount' => $this->invoice->amount,
+    ];
+}
+```
+
+#### toDatabase VS toArray
+toArray 方法同時也會被 broadcast 廣播頻道用來判斷要推播哪些資料到Javascript用戶端。若希望有兩種不同的陣列<br/>來表示 database 和 broadcast 頻道，你改為定義一個 toDatabase 方法而不是 toArray 方法。
+
+### 存取通知
+一旦通知訊息是存放在於資料庫中，你會需要一個方便的方法從可通知實例來存取它們。 Illuminate\Notifications\Notifiable<br/>
+Trait 預設就被包含在 Laravel 的 App\User 模型，其包含了一個 notifications 的 Eloquent 關聯模型，可藉此回傳<br/>通知實例。為了獲取這些通知，你可以像其它 Eloquent關聯一樣地存取它們。預設，通知則會用 created_at 時間戳記<br/>
+來進行排序。
+```
+$user = App\User::find(1);
+
+foreach ($user->notifications as $notification) {
+    echo $notification->type;
+}
+```
+如果你想取得是未讀取的通知，可以改用**unreadNotifications**這關聯模型，同樣地該模型取得的通知實例是以<br/>
+created_at 時間戳記來進行排序。
+```
+$user = App\User::find(1);
+
+foreach ($user->unreadNotifications as $notification) {
+    echo $notification->type;
+}
+```
+
+### 標示通知為已讀
+通常你會希望將使用者看過的通知訊息標記成已讀，Illuminate\Notifications\Notifiable Trait 提供了一個<br/>
+markAsRead 方法可以用來更新資料表內通知紀錄的read_at欄位。
+```
+$user = App\User::find(1);
+
+foreach ($user->unreadNotifications as $notification) {
+    $notification->markAsRead();
+}
+```
+然而，除了以迴圈的方式去標記每則通知為已讀，還可以直接在通知集合物件上直接調用markAsRead 方法予以<br/>
+標記這些通知。
+```
+$user->unreadNotifications->markAsRead();
+```
+
+你可能也需要使用Mass Update的方式來標記所有通知為已讀而無需從資料庫中取得這些資訊實例後才進行操作。
+```
+$user = App\User::find(1);
+
+$user->unreadNotifications()->update(['read_at' => now()]);
+```
+當然，你也能會透過 delete 方法將這些通知從資料庫中完整的刪除。
+```
+$user->notifications()->delete()
+```
+
 ## 廣播通知
+### 先決條件
+在開始廣播通知前，你需要配置好Laravel提供的事件廣播服務，事件廣播提供了一個方法讓你能夠從JavaScript客戶端<br/>
+與伺服器端的觸發事件進行互動。
+
+### 格式化廣播通知
+經廣播頻道的通知方式使用的是 Laravel 的事件廣播服務，能夠讓你的 JavaScript 用戶端可以即時的捕捉到通知<br/>
+訊息。如果你的通知支援廣播通知，就需要在通知類別內部定義一個toBroadcast方法，該方法同樣接受一個$notifiable<br/>
+實例，然後會返回一個BroadcastMessage實例。回傳的資料會使用 JSON 格式傳遞到 JavaScript 用戶端。讓我們來看<br/>
+一個使用  toBroadcast 方法的範例。
+```
+use Illuminate\Notifications\Messages\BroadcastMessage;
+
+/**
+ * Get the broadcastable representation of the notification.
+ *
+ * @param  mixed  $notifiable
+ * @return BroadcastMessage
+ */
+public function toBroadcast($notifiable)
+{
+    return new BroadcastMessage([
+        'invoice_id' => $this->invoice->id,
+        'amount' => $this->invoice->amount,
+    ]);
+}
+```
+
+#### 廣播佇列設定
+所有的廣播訊息都會直接採用佇列的方式進行廣播。如果你想要設定進行廣播操作時使用的佇列連線或佇列名稱，<br/>
+可以使用 BroadcastMessage 的 onConnection 和 onQueue 方法。
+```
+return (new BroadcastMessage($data))
+                ->onConnection('sqs')
+                ->onQueue('broadcasts');
+```
+> ~~~
+> 除了指定的訊息之外，廣播通知也會包含一個  type 欄位用來儲存通知類別的名稱。
+> ~~~
+
+### 監聽通知
+通知會透過以 **{notifiable}.{id}** 這個慣用的表達方式在私人頻道上進行廣播。所以，如果你想寄送通知到ID為1的<br/>
+使用者身上，該通知就會使用 **App.User.1** 這個私人頻道進行傳遞。當使用了 **Laravel Echo**，你可以更輕鬆的<br/> 利用輔助方法 notifications 來進行該頻道的監聽。
+```
+Echo.private('App.User.' + userId)
+    .notification((notification) => {
+        console.log(notification.type);
+    });
+```
+
+#### 自訂通知頻道
+如果你想要自訂可通知實體用來接收通知的頻道，可以在可通知實體內定義一個 receivesBroadcastNotificationsOn 方法
+```
+<?php
+
+namespace App;
+
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
+class User extends Authenticatable
+{
+    use Notifiable;
+
+    /**
+     * The channels the user receives notification broadcasts on.
+     *
+     * @return string
+     */
+    public function receivesBroadcastNotificationsOn()
+    {
+        return 'users.'.$this->id;
+    }
+}
+```
+
 ## 簡訊通知
+### 先決條件
+在Laravel使用SMS簡訊通知是透過Nexmo來提供支援。在透過 Nexmo 傳送通知前，你必須先用 Composer 安裝<br/>
+nexmo/client 套件並在config/services中加上對應的設定。範例設定如下：
+```
+'nexmo' => [
+    'key' => env('NEXMO_KEY'),
+    'secret' => env('NEXMO_SECRET'),
+    'sms_from' => '15556666666',
+],
+```
+其中，sms_from 選項是用來設定SMS 訊息是由哪個電話號碼進行傳送。你需要在 Nexmo 的主控台介面中來產生這樣<br/>
+一組電話號碼。
+
+### 格式化SMS簡訊通知
+若通知是利用 SMS 方式進行傳送，你需要在通知類別中定義 toNexmo 方法。該方法也接受一個 $notifiable 實體並且<br/>
+會回傳一個 Illuminate\Notifications\Messages\NexmoMessage 實例。
+```
+/**
+ * Get the Nexmo / SMS representation of the notification.
+ *
+ * @param  mixed  $notifiable
+ * @return NexmoMessage
+ */
+public function toNexmo($notifiable)
+{
+    return (new NexmoMessage)
+                ->content('Your SMS message content');
+}
+```
+
+#### Unicode 萬國碼內容
+如果簡訊訊息中包含了Unicode的字元，則必須在建構NexmoMessage實例時調用unicode方法
+```
+/**
+ * Get the Nexmo / SMS representation of the notification.
+ *
+ * @param  mixed  $notifiable
+ * @return NexmoMessage
+ */
+public function toNexmo($notifiable)
+{
+    return (new NexmoMessage)
+                ->content('Your unicode message')
+                ->unicode();
+}
+```
+
+### 自訂 "FROM" 號碼
+如果寄送簡訊通知時需要使用有別設config/services配置以外的電話號碼，你必須在NexmoMessage實例上調用from方法<br/>
+予以指定。
+```
+/**
+ * Get the Nexmo / SMS representation of the notification.
+ *
+ * @param  mixed  $notifiable
+ * @return NexmoMessage
+ */
+public function toNexmo($notifiable)
+{
+    return (new NexmoMessage)
+                ->content('Your SMS message content')
+                ->from('15554443333');
+}
+```
+
+### 路由轉送SMS簡訊通知
+當使用 nexmo 頻道寄送通知時，預設通知系統是先找尋可通知實體中的phone_number屬性，如果想要自訂可通知<br/>
+實體獨立使用的電號號碼，可在可通知實體中定義routeNotification方法。
+```
+<?php
+
+namespace App;
+
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
+class User extends Authenticatable
+{
+    use Notifiable;
+
+    /**
+     * Route notifications for the Nexmo channel.
+     *
+     * @param  \Illuminate\Notifications\Notification  $notification
+     * @return string
+     */
+    public function routeNotificationForNexmo($notification)
+    {
+        return $this->phone;
+    }
+}
+```
+
 ## Slack通知
+### 先決條件
+在開始使用Slack傳送通知時，必須使用Composer來安裝Guzzle HTTP library
+```
+composer require guzzlehttp/guzzle
+```
+
+你也會需要設定一個 "Incoming Webhook" 來整合到你的 Slack 團隊。這項整合會提供一組 URL，你可以利用這個設置<br/>
+來路由 Slack 通知。
+
+### 格式化Slack通知
+若要讓通知訊息支援由 Slack 傳遞，你可以在你的通知類別中定義一個 toSlack 方法。該方法接受一個可通知實體然後<br/>
+返回一個Illuminate\Notifications\Messages\SlackMessage實例。Slack 訊息可以包含純文字內容或是含有額外格式化<br/>
+文字、陣列資料的附件。
+```
+/**
+ * Get the Slack representation of the notification.
+ *
+ * @param  mixed  $notifiable
+ * @return SlackMessage
+ */
+public function toSlack($notifiable)
+{
+    return (new SlackMessage)
+                ->content('One of your invoices has been paid!');
+}
+```
+上述範例中僅僅是傳送一行文字給Slack，其樣式看起來就像下面所示：<br/>
+![Alt text](https://laravel.com/assets/img/basic-slack-notification.png "Slack訊息通知範例")
+
+#### 自定傳送者及接收者
+你可以使用 **from** 及 **to** 兩種方法來定義傳送者與接收者。from方法可以接受使用者名稱或emoji表情符號；<br/>
+to方法則接受頻道或使用者名稱。
+```
+/**
+ * Get the Slack representation of the notification.
+ *
+ * @param  mixed  $notifiable
+ * @return SlackMessage
+ */
+public function toSlack($notifiable)
+{
+    return (new SlackMessage)
+                ->from('Ghost', ':ghost:')
+                ->to('#other')
+                ->content('This will be sent to #other');
+}
+```
+你也可以使用一張圖片作為訊息的 Logo 而不是使用 emoji 符號：
+```
+/**
+ * Get the Slack representation of the notification.
+ *
+ * @param  mixed  $notifiable
+ * @return SlackMessage
+ */
+public function toSlack($notifiable)
+{
+    return (new SlackMessage)
+                ->from('Laravel')
+                ->image('https://laravel.com/favicon.png')
+                ->content('This will display the Laravel logo next to the message');
+}
+```
+
+### Slack 附件
+#### Markdown 附件內容
+### 路由轉送Slack訊息
 
 ## 通知事件
 ## 客製頻道

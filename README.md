@@ -79,9 +79,12 @@ Laravel development environment - using laradock<br/>
 #### [ - Password Reset](https://github.com/Internaltide/Laradep/blob/master/laratopics/PasswordReset.md)
 ### Digging Deeper
 #### [ - Artisan Console](https://github.com/Internaltide/Laradep/blob/master/laratopics/ArtisanConsole.md)
+#### [ - Broadcasting](https://github.com/Internaltide/Laradep/blob/master/laratopics/Broadcasting.md)
 #### [ - Cache](https://github.com/Internaltide/Laradep/blob/master/laratopics/Cache.md)
+#### [ - Collections](https://github.com/Internaltide/Laradep/blob/master/laratopics/Collections.md)
 #### [ - Events](https://github.com/Internaltide/Laradep/blob/master/laratopics/Events.md)
 #### [ - File Storage](https://github.com/Internaltide/Laradep/blob/master/laratopics/FileStorage.md)
+#### [ - Helpers](https://github.com/Internaltide/Laradep/blob/master/laratopics/Helpers.md)
 #### [ - Mail](https://github.com/Internaltide/Laradep/blob/master/laratopics/Mail.md)
 #### [ - Notifications](https://github.com/Internaltide/Laradep/blob/master/laratopics/Notifications.md)
 #### [ - Queues](https://github.com/Internaltide/Laradep/blob/master/laratopics/Queues.md)

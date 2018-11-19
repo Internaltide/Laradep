@@ -405,7 +405,144 @@ class OrderChannel
 > ~~~
 
 ## 廣播事件
+一但你定義好事件類別並實作了ShouldBroadcast介面，你只需要使用 event 函式就能觸發事件。事件配發器會注意<br/>
+到事件是否實作了 ShouldBroadcast 介面，並將事件加入到佇列等待廣播。
+```
+event(new ShippingStatusUpdated($update));
+```
+
+### 只廣播給其他人
+當你建立了一個使用廣播事件的應用程式時，你可以用 broadcast 函式來替代 event 函式，就像 event 函式一樣<br/>
+，broadcast 函式一樣會派發事件到你的伺服器端的監聽器。
+```
+broadcast(new ShippingStatusUpdated($update));
+```
+
+接著就可以在 broadcast 函式後再鏈式調用 toOthers 方法，它可以讓你將當前使用者從廣播接收名單中排除。
+```
+broadcast(new ShippingStatusUpdated($update))->toOthers();
+```
+PS. 為了能調用toOthers這個方法，事件類別必須使用Illuminate\Broadcasting\InteractsWithSockets這個Trait。
+
+為了更理解什麼情況下會用到 toOthers 方法，讓我們想像一個任務清單的應用程式，使用者可以藉由輸入任務<br/>
+名稱來建立新任務。為了建立任務，應用程式應該要送出請求到類似 /task 這樣的路由，接著觸發任務創建的事件<br/>
+並以JSON格式將請求結果廣播給使用者。當 JavaScript 應用程式接收到該路由回應的內容後，就可以直接將新任務<br/>
+加入到清單中。
+```
+axios.post('/task', task)
+    .then((response) => {
+        this.tasks.push(response.data);
+    });
+```
+然而要知道，廣播雖是被動觸發，但相對於路由響應來說還是獨立的。因此對於創建新任務的當前使用者來說，<br/>
+可能會導致清單中重複出現相同的任務資料，一個來自路由直接的響應所產生，一個則來自被觸發產生的廣播。<br/>
+為了解決這個問題，可以使用 toOthers 方法來告知廣播器不要再廣播給觸發事件的使用者。
+
+#### 設定
+當你在初始化 laravel-echo 實例的時候，socket ID 就會被指定到該連線上。而如果你是使用 Vue 和 Axios <br/>
+這樣的組合，socket ID 就會被自動以 X-Socket-ID header 的形式來附加到每個送出的請求上。接著，當你呼叫<br/>
+toOthers 方法時，Laravel 會從 header 中取得 socket ID，並告訴廣播器不要廣播到同一個 socket ID 的連線上。
+
+但如果你不是使用 Vue 和 Axios的話，你就得自行設定 JavaScript 應用程式來送出 X-Socket-ID header。而你可以<br/>
+使用  Echo.socketId 方法來取得 socket ID。
+```
+var socketId = Echo.socketId();
+```
+
 ## 接收廣播
-## Presence頻道
+### 安裝Laravel Echo
+Laravel Echo 是一個 JavaScript 函式庫，Laravel可以透過它無痛地訂閱頻道與監聽事件廣播。而你可以透過npm<br/>
+來安裝該前端套件。
+```
+npm install --save laravel-echo pusher-js
+```
+
+一旦安裝好 Echo，你就可以在你的 JavaScript 應用程式中建立全新的 Echo 實例。而在Laravel的<br/>
+resources/assets/js/bootstrap.js文件底部是撰寫這些程式碼的最佳位置，範例如下：
+```
+import Echo from "laravel-echo"
+
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: 'your-pusher-key'
+});
+```
+
+當建立了使用 pusher 連接器的 Echo 實例時，你還可以指定 cluster 以及是否需要加密連線。
+```
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: 'your-pusher-key',
+    cluster: 'eu',
+    encrypted: true
+});
+```
+
+### 監聽事件
+在安裝Echo套件並創建實例後，你就可以開始監聽廣播事件。首先，使用 channel 方法來取得一個頻道實例，然後<br/>
+再調用  listen 方法去監聽指定的事件。
+```
+Echo.channel('orders')
+    .listen('OrderShipped', (e) => {
+        console.log(e.order.name);
+    });
+```
+
+如果想要監聽私有頻道的事件，可以改用 private 方法。另外，你也可以連續調用 listen 方法來監聽同一頻道上的<br/>
+多個事件。
+```
+Echo.private('orders')
+    .listen(...)
+    .listen(...)
+    .listen(...);
+```
+
+
+### 離開頻道
+你可以使用leave方法來讓你的Echo實例離開特定頻道。
+```
+Echo.leave('orders');
+```
+
+### 命名空間
+你可能注意到上述範例中並沒有為事件類別指定完整的命名空間。這是因為Echo套件預設會認為事件是處在App\Events<br/>
+這個命名空間下。若要自訂基底命名空間，則可在實例化 Echo 時利用 namespace 設定選項來配置想要的命名空間。
+```
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: 'your-pusher-key',
+    namespace: 'App.Other.Namespace'
+});
+```
+
+或者，當你在使用 Echo 監聽它們的時候，你可以在事件類別加上前綴 "**.**"。這即可允許你直接指定完整的類別名稱。
+```
+Echo.channel('orders')
+    .listen('.Namespace.Event.Class', (e) => {
+        //
+    });
+```
+
+## Presence 頻道
+Presence 頻道主要是為了私人頻道的安全性而建構，其額外提供了一個可以知道誰訂閱頻道的功能。當新用戶<br/>
+加入或發送消息到該頻道時就會通知其它已經加入頻道的用戶。這使得可以輕鬆建立強大的協作應用程式，例如<br/>
+當使用者都在瀏覽相同頁面時，予以通知其他使用者。
+
+### 授權給Presence 頻道
+所有的 presence 頻道都可以算是私人頻道，所以使用者必須經過授權才能夠存取。然而，當你在為Presence 頻道建立<br/>
+授權回調時，並非在使用者被授權進入時回傳true，而是要回傳一組關於使用者資料的陣列資料。而授權回調所回傳的<br/>
+資料則會被用在 JavaScript 應用程式中的 presence 頻道事件監聽器。如果使用者並未被授權加入Presence 頻道則回<br/>
+傳 false 或 null。
+```
+Broadcast::channel('chat.{roomId}', function ($user, $roomId) {
+    if ($user->canJoinRoom($roomId)) {
+        return ['id' => $user->id, 'name' => $user->name];
+    }
+});
+```
+
+### 加入Presence 頻道
+### 廣播到Presence 頻道
+
 ## 客戶端事件
 ## 通知

@@ -542,7 +542,90 @@ Broadcast::channel('chat.{roomId}', function ($user, $roomId) {
 ```
 
 ### 加入Presence 頻道
+要加入到Presence 頻道，你必須使用join方法，該方法會返回一個PresenceChannel的實作，接著你還可以繼續調用<br/>
+相關的監聽方法以進一步訂閱 here、joining 和 leaving 等事件。
+```
+Echo.join(`chat.${roomId}`)
+    .here((users) => {
+        //
+    })
+    .joining((user) => {
+        console.log(user.name);
+    })
+    .leaving((user) => {
+        console.log(user.name);
+    });
+```
+要加入到Presence 頻道，你必須使用join方法，該方法會返回一個PresenceChannel的實作，接著你還可以繼續調用<br/>
+here 回調會在你成功加入到頻道立即觸發執行，並且會接收一組包含所有訂閱該頻道的其它使用者資訊；joining回調<br/>
+是在有新用戶加入頻道後觸發；leaving回調則是有使用者離開頻道時執行。
+
 ### 廣播到Presence 頻道
+Presence 頻道可以像私有或是公開頻道一樣接收事件。以聊天室為例，我們可能想要廣播 NewMessage 事件到聊天室<br/>
+的presence 頻道。為此，我們需從事件類別的 broadcastOn 方法返回一個 PresenceChannel 實例。
+```
+/**
+ * Get the channels the event should broadcast on.
+ *
+ * @return Channel|array
+ */
+public function broadcastOn()
+{
+    return new PresenceChannel('room.'.$this->message->room_id);
+}
+```
+而就像公開或私人頻道上的事件一樣， presence 頻道的事件亦可以使用 broadcast 函式來廣播。同樣地，你也能使<br/> 用 toOthers 方法來將使用者從廣播接收名單中排除。
+```
+broadcast(new NewMessage($message));
+
+broadcast(new NewMessage($message))->toOthers();
+```
+
+你還可以透過 listen 方法來監聽 join 事件
+```
+Echo.join(`chat.${roomId}`)
+    .here(...)
+    .joining(...)
+    .leaving(...)
+    .listen('NewMessage', (e) => {
+        //
+    });
+```
 
 ## 客戶端事件
+> ~~~
+> 當你使用的是Pusher驅動時，為了能夠傳送客戶端事件，你必須在Pusher應用服務儀表板上的App Settings區塊
+> 予以啟用 Client Events 這個選項。
+> ~~~
+
+有時候，你可能希望在不觸發 Laravel 應用程式的前提下向其他連接的客戶端廣播事件。這對於像是「正在輸入」<br/>
+這種通知特別有用，你想要提醒使用者，另一個使用者正在視窗上輸入訊息。<br/>
+
+要廣播像是「輸入中」這種客戶端事件，你可以使用 Echo 的 whisper 方法
+```
+Echo.private('chat')
+    .whisper('typing', {
+        name: this.user.name
+    });
+```
+
+要監聽客戶端事件，則可以使用 listenForWhisper 方法
+```
+Echo.private('chat')
+    .listenForWhisper('typing', (e) => {
+        console.log(e.name);
+    });
+```
+
 ## 通知
+對於搭配事件廣播的通知系統，你的 JavaScript 應用程式可以在不重新整理頁面的情況下就能接收到新通知。<br/>
+一但配置好了使用廣播頻道的通知，你就可以使用 Echo 的 notification 方法來監聽廣播事件。只是請記得，<br/>
+頻道名稱須與可接收通知的實例類別名稱一致。
+```
+Echo.private(`App.User.${userId}`)
+    .notification((notification) => {
+        console.log(notification.type);
+    });
+```
+在上述例子中，所有透過broadcast頻道傳送到App\User模型實例的通知都會被回調函數所接收。而關於頻道<br/>
+App.User.{id}的授權回調則已預設包含在 Laravel 內建的BroadcastServiceProvider中。

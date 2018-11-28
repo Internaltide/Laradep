@@ -101,6 +101,7 @@ Laravel development environment - using laradock<br/>
 #### [ - Getting Started](https://github.com/Internaltide/Laradep/blob/master/laratopics/GettingORMStarted.md)
 #### [ - Relationships](https://github.com/Internaltide/Laradep/blob/master/laratopics/Relationships.md)
 #### [ - Mutators](https://github.com/Internaltide/Laradep/blob/master/laratopics/Mutators.md)
+#### [ - Serialization](https://github.com/Internaltide/Laradep/blob/master/laratopics/Serialization.md)
 
 ## 常用快捷
  - Alt+滑鼠左鍵 可同時編輯多行

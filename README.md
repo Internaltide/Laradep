@@ -100,6 +100,7 @@ Laravel development environment - using laradock<br/>
 ### Eloquent ORM
 #### [ - Getting Started](https://github.com/Internaltide/Laradep/blob/master/laratopics/GettingORMStarted.md)
 #### [ - Relationships](https://github.com/Internaltide/Laradep/blob/master/laratopics/Relationships.md)
+#### [ - Collections](https://github.com/Internaltide/Laradep/blob/master/laratopics/EloquentCollections.md)
 #### [ - Mutators](https://github.com/Internaltide/Laradep/blob/master/laratopics/Mutators.md)
 #### [ - Serialization](https://github.com/Internaltide/Laradep/blob/master/laratopics/Serialization.md)
 

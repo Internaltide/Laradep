@@ -87,6 +87,7 @@ Laravel development environment - using laradock<br/>
 #### [ - Helpers](https://github.com/Internaltide/Laradep/blob/master/laratopics/Helpers.md)
 #### [ - Mail](https://github.com/Internaltide/Laradep/blob/master/laratopics/Mail.md)
 #### [ - Notifications](https://github.com/Internaltide/Laradep/blob/master/laratopics/Notifications.md)
+#### [ - Packages Development](https://github.com/Internaltide/Laradep/blob/master/laratopics/PackageDevelop.md)
 #### [ - Queues](https://github.com/Internaltide/Laradep/blob/master/laratopics/Queues.md)
 #### [ - Task Scheduling ](https://github.com/Internaltide/Laradep/blob/master/laratopics/TaskSchedule.md)
 

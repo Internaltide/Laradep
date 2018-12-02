@@ -110,7 +110,7 @@ public function register()
 ```
 PS. mergeConfigFrom 方法只會合併設定陣列的第一層。如果使用者定義了多維的設定陣列，則遺失的選項將不會被合併。
 
-### 路由
+### 套件路由
 如果套件包含了路由設置，你可以使用 loadRoutesFrom 方法來載入路由設定。該方法會自動判斷應用程式的路由<br/>
 是否已被快取，如果路由被快取的話，就不會載入路由檔案。
 ```
@@ -125,7 +125,7 @@ public function boot()
 }
 ```
 
-### 遷移
+### 套件遷移
 如果套件包含了資料庫遷移的設置，你應該使用 loadMigrationsFrom 方法告知 Laravel 如何來載入他它們。該方法<br/>
 接受套件的遷移檔路徑，並作為該方法的唯一參數。
 ```
@@ -142,7 +142,7 @@ public function boot()
 當套件的遷移檔被註冊，它們就會在操作 php artisan migrate 指令後自動被執行。你並不需要將它們導出到應用程式<br/>
 主要的遷移檔目錄 database/migrate。
 
-### 翻譯
+### 套件翻譯
 如果套件包含了翻譯檔案，你可以使用 loadTranslationsFrom 方法來載入它們。假定你的套件名稱叫 **courier**，<br/>
 那你應該新增下列內容到你的服務提供者的 boot 方法。
 ```
@@ -184,7 +184,7 @@ public function boot()
 ```
 現在，當套件使用者執行了 vendor:publish 指令後，套件翻譯檔就會被發佈到指定的位置。
 
-### 視圖
+### 套件視圖
 為了註冊套件視圖到 Laravel ，你需要告訴 Laravel 視圖的位置在哪裡，而你可使用服務提供者的 loadViewsFrom <br/>
 方法。該方法接受兩個參數，一是視圖模板路徑，一是套件名稱。例如，套件名稱為 courier，你就可以在服務提<br/>
 供者的 boot 方法中新增下列內容。
@@ -234,6 +234,74 @@ public function boot()
 ```
 現在，你的套件視圖會在使用者執行 vendor:publish 指令後被複製一份到指定的發佈位置。
 
-## 指令
-## 公開 Asset
+## 套件指令
+如果要註冊套件自己的 Artisan 指令到Laravel，請使用 commands 方法。該指令期望一組包含指令類別名稱的陣列<br/>
+作為其參數。一旦註冊好指令，你就能使用 Artisan CLI 來執行它們。
+```
+/**
+ * Bootstrap the application services.
+ *
+ * @return void
+ */
+public function boot()
+{
+    if ($this->app->runningInConsole()) {
+        $this->commands([
+            FooCommand::class,
+            BarCommand::class,
+        ]);
+    }
+}
+```
+
+## 公開資源
+你的套件可能擁有像是 JavaScript、CSS 或 images 這類的資源檔。若要將它們發佈到應用程式的 public 目錄下，需<br/>
+要使用服務提供者的 publishes 方法。在下面的範例中，我們還會新增一個名為 public 的資源群組標籤，這可以被<br/>
+用於發佈特定相關的資源群組。
+```
+/**
+ * Perform post-registration booting of services.
+ *
+ * @return void
+ */
+public function boot()
+{
+    $this->publishes([
+        __DIR__.'/path/to/assets' => public_path('vendor/courier'),
+    ], 'public');
+}
+```
+
+現在，你的套件使用這在執行了 vendor:publish 指令後，你的資源就會被複製一份到指定的發佈位置。而由於你通常<br/>
+會需要在更新套件時覆寫現有資源，你可以使用 --force 選項。
+```
+php artisan vendor:publish --tag=public --force
+```
+
 ## 發佈檔案群組
+你可能想要發佈特定的套件資源群組和其他個別資源。例如，你可能想讓套件使用者只發佈套件設定檔，而無須<br/>
+強制發佈套件資源。你可以在套件的服務提供者中調用 publishes 方法時透過指定標籤來做到這一點。舉例來說，<br/>
+先讓我們在服務提供者的 boot 方法內利用標籤來定義兩個資源發佈群組。
+```
+/**
+ * Perform post-registration booting of services.
+ *
+ * @return void
+ */
+public function boot()
+{
+    $this->publishes([
+        __DIR__.'/../config/package.php' => config_path('package.php')
+    ], 'config');
+
+    $this->publishes([
+        __DIR__.'/../database/migrations/' => database_path('migrations')
+    ], 'migrations');
+}
+```
+
+接著，套件的使用者就能在執行 vendor:publish 指令時依照指定的標籤來個別發佈這些資源群組。
+```
+// 發佈設定檔相關資源
+php artisan vendor:publish --tag=config
+```

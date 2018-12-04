@@ -103,6 +103,7 @@ Laravel development environment - using laradock<br/>
 #### [ - Relationships](https://github.com/Internaltide/Laradep/blob/master/laratopics/Relationships.md)
 #### [ - Collections](https://github.com/Internaltide/Laradep/blob/master/laratopics/EloquentCollections.md)
 #### [ - Mutators](https://github.com/Internaltide/Laradep/blob/master/laratopics/Mutators.md)
+#### [ - API Resources](https://github.com/Internaltide/Laradep/blob/master/laratopics/APIResource.md)
 #### [ - Serialization](https://github.com/Internaltide/Laradep/blob/master/laratopics/Serialization.md)
 
 ## 常用快捷

@@ -203,6 +203,170 @@ class PostPolicy
 或 delete 方法來授權  Post 的其他行為。而且記得，你可以任意地為政策方法定義自己想要的名字。
 
 ### 沒有模型的方法
+某些政策方法僅僅接收當前的已驗證使用者，而沒有接收授權的模型實例。這個情況常發生在授權 create 行為<br/>
+的時候。例如，你正要建立一個部落格，而你可能希望檢查是否有使用者被授與可以建立文章的權限。
+```
+/**
+ * Determine if the given user can create posts.
+ *
+ * @param  \App\User  $user
+ * @return bool
+ */
+public function create(User $user)
+{
+    //
+}
+```
+
 ### 政策篩選器
+對部分使用者來說，你可能希望授權給定政策內的所有的行為，你可以透過在政策類別內定義 before 方法，該方法<br/>
+會優先於其他類別方法前被調用，讓你有機會在預期的政策方法調用前就先授權，這個功能最常用在授權給後台管理<br/>
+員可以執行任何操作。
+```
+public function before($user, $ability)
+{
+    if ($user->isSuperAdmin()) {
+        return true;
+    }
+}
+```
+如果你想拒絕使用者的所有行為授權，你必須在 before 方法內返回 false。如果返回了 null，則會轉交給原本預期的<br/>
+其他政策方法來判斷使用者的授權。<br/>
+
+PS. 注意!! 如果類別並未包含名稱與欲授權行為名稱一致的方法，則不會對授權類別的 before 方法進行調用。
 
 ## 利用政策對行為進行授權
+### 透過使用者模型
+在 Laravel 內建的使用者模型中，預設就提供了 **can** 與 **cant** 兩種有效的授權檢查方法。其中，can 接受<br/>
+行為名稱及相關模型為其參數。例如，判斷一個使用者是否有權限可以對給定的 Post 模型進行更新。
+```
+if ($user->can('update', $post)) {
+    //
+}
+```
+如果給定模型對應的授權政策視已經註冊好的，則 can 方法會自動選用適當的政策類別並返回布林值；如果不存在<br/>
+已註冊的授權政策，則 can 方法將嘗試呼叫基於閉包且符合授權行為名稱的 Gate 來進行檢查。
+
+#### 不需指定模型的操作
+記住，像是 create 這樣的操作是不需模型實例的。這種情境下，你可以直接傳遞模型類別名稱給方法 can 而不是<br/>
+模型實例。該類別名稱則用來決定該用哪一個政策來進行授權。
+```
+use App\Post;
+
+if ($user->can('create', Post::class)) {
+    // Executes the "create" method on the relevant policy...
+}
+```
+
+### 透過中介層
+Laravel 預設也內建了一個中介層Illuminate\Auth\Middleware\Authorize，其可以在請求實際進入路由或控制器前<br/>
+進行指定操作的授權檢查。而預設該中介層則是被指定到 App\Http\Kernel 類別的 can 鍵上面。下面範例，呈現<br/>
+了使用用該中介層檢查使用者是否被授權更新部落格的 Post。
+```
+use App\Post;
+
+Route::put('/post/{post}', function (Post $post) {
+    // The current user may update the post...
+})->middleware('can:update,post');
+```
+在上述例子中，我們傳遞了兩個參數給 can 中介層。一是希望授權的行為名稱；另一則是傳遞給政策方法的路由<br/>
+參數。我們還使用了隱式的模型綁定，一個 Post 模型將會被傳遞給政策方法。如果使用者沒有被授權給定的行為，<br/>
+則中介層將回應 HTTP 403 的狀態碼。
+
+#### 不需指定模型的操作
+同樣地，像 create 這樣不需要模型實例的行為，你只要改傳遞模型類別名稱給中介層即可決定該用何種政策來進行授權。
+```
+Route::post('/post', function () {
+    // The current user may create posts...
+})->middleware('can:create,App\Post');
+```
+
+### 透過控制器輔助方法
+除了模型的輔助方法外，繼承自 App\Http\Controllers\Controller 的控制器也提供了 authorize 這個授權檢查方<br/>
+法。跟使用者模型的 can 一樣，接受授權行為名稱與相關模型作為參數。如果指定行為未被授權，則直接拋出<br/>
+Illuminate\Auth\Access\AuthorizationException 這個例外。而預設 Laravel 則使用例外處理器回應 HTTP 403 狀態碼。
+```
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Post;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+
+class PostController extends Controller
+{
+    /**
+     * Update the given blog post.
+     *
+     * @param  Request  $request
+     * @param  Post  $post
+     * @return Response
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function update(Request $request, Post $post)
+    {
+        $this->authorize('update', $post);
+
+        // The current user can update the blog post...
+    }
+}
+```
+
+#### 不需指定模型的操作
+與先前所提相同，在 create 這類不需模型實例之操作的情境下，請改傳遞模型類別名稱給 authorize 方法。
+```
+/**
+ * Create a new blog post.
+ *
+ * @param  Request  $request
+ * @return Response
+ * @throws \Illuminate\Auth\Access\AuthorizationException
+ */
+public function create(Request $request)
+{
+    $this->authorize('create', Post::class);
+
+    // The current user can create blog posts...
+}
+```
+
+### 透過 Blade 模板
+當撰寫 Blade 視圖時，你可能希望頁面的某一部分只顯示給有被授權特定行為的使用者。例如，你只想對有權限更新<br/>
+部落格 Post 的使用者顯示更新用的表單。這個時候，你可以利用 **@can** 或 **@cannot** 一系列的指令。
+```
+@can('update', $post)
+    <!-- The Current User Can Update The Post -->
+@elsecan('create', App\Post::class)
+    <!-- The Current User Can Create New Post -->
+@endcan
+
+@cannot('update', $post)
+    <!-- The Current User Can't Update The Post -->
+@elsecannot('create', App\Post::class)
+    <!-- The Current User Can't Create New Post -->
+@endcannot
+```
+
+而這些指令應用其實只是@if 和 @unless 語句另一種便捷語法。上述範例就等於下面使用 @if 跟 @unless 的這種寫法。
+```
+@if (Auth::user()->can('update', $post))
+    <!-- The Current User Can Update The Post -->
+@endif
+
+@unless (Auth::user()->can('update', $post))
+    <!-- The Current User Can't Update The Post -->
+@endunless
+```
+
+#### 不需指定模型的操作
+就像大部分不需模型實例的授權方法一樣，你可以改傳遞模型類別名稱給 @can 或 @cannot 指令。
+```
+@can('create', App\Post::class)
+    <!-- The Current User Can Create Posts -->
+@endcan
+
+@cannot('create', App\Post::class)
+    <!-- The Current User Can't Create Posts -->
+@endcannot
+```

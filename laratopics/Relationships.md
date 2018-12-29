@@ -30,23 +30,24 @@ class User extends Model
 $phone = User::find(1)->phone;
 ```
 #### 預設慣例
-上述關聯中，各模型的關聯鍵名皆有預設慣例。<br/>
-phone模型外鍵名稱，慣例以上層模型名稱附加**_id**，所以前例外鍵名稱為user_id。<br/>
-user模型則慣例使用id這樣的關聯鍵名。<br/>
-所以，上層模型user就用欄位id與下層模型phone的外鍵user_id進行join。<br/>
-要打破慣例就必須依下列方式進行調整<br/>
- * 傳遞外鍵名到hasOne的第二個參數，覆寫預設的外鍵名稱
- * 傳遞上層關聯鍵名到hasOne的第三個參數，覆寫預設的上層關聯鍵名id
+關聯模型用的鍵名皆有預設的名稱慣例。而為了方便，我們將外鍵所在模型稱之為下層模型<br/>
+，另一個稱之為上層模型，以方便解釋。<br/>
+
+依照慣例，下層模型的外鍵名稱會假定是上層模型名稱附加**_id**，因此前例 phone 模型的外鍵名稱<br/>
+應該為 user_id。而上層模型的關聯用鍵則預設假定為 id。換句話說，預設認定上層模型user會使用欄位id<br/>
+來與下層模型phone的外鍵user_id進行join。若要打破鍵名的慣例就須依下列方式進行調整<br/>
+ * 傳遞下層模型的外鍵名到hasOne的第二個參數，覆寫預設的外鍵名稱
+ * 傳遞上層模型的關聯鍵名到hasOne的第三個參數，覆寫預設的上層關聯鍵名id
 ```
 return $this->hasOne('App\Phone', 'foreign_key', 'local_key');
 ```
 #### 反向關聯
-依前面定義方式，我們可以從user取得phone資料，其屬於正向關聯。<br/>
-若要反過來從phone取得user資料，就要定義好反向關聯。<br/>
-在phone模型(被擁有者)中定義關聯方法(名稱無限制)；接著在關聯方法內調用belongsTo方法並返回結果，<br/>
-這樣就可以為phone模型產生動態屬性，往後再藉由模型動態屬性取得關聯資料。<br/><br/>
-另外，反向關聯與正向關聯的慣例差異，在於反向關聯的外鍵是以下層模型的關聯方法附加**_id**，<br/>
-上層關聯鍵名則一樣使用id。
+依前面定義方式，我們可以從 user 取得 phone 資料，其屬於正向關聯。<br/>
+若要反過來從下層模型 phone 去取得 上層模型的 user 資料，就要定義好反向關聯。<br/>
+在 phone 模型(被擁有者)中定義關聯方法(名稱無限制)；接著在關聯方法內調用belongsTo方法並返回結果，<br/>
+這樣就可以為phone模型產生動態屬性，往後再藉由模型動態屬性取得關聯資料。<br/>
+另外，反向關聯與正向關聯的慣例差異，主要在於反向關聯時，下層模型的外鍵名稱則會假定為是關聯方法的<br/>
+名稱再附加上**_id**，上層關聯鍵名則一樣使用id。
 ```
 <?php
 
@@ -90,25 +91,25 @@ return $this->belongsTo('App\User')->withDefault(function ($user) {
 #### 示意表 ( **Users ⇦⇨ Phone** )
 &nbsp;                    | 正向關聯(user has phone)                    | 反向關聯(phone belongs to user)
 :-----------------------|:----------------------------------------------:|:--------------------------------------:
-[上層模型users]     | if R exist use R else use id                    | if R exist use R else use id
+[上層模型users]     | 主鍵名稱為R(默認是id)                      | 主鍵名稱為R(默認是id)
 &nbsp;                    |                                                                |
 [關聯方法]             | phone()                                                   | user()
 [調用方法]             | hasOne('App\Phone','F','R')                   | belongsTo('App\Users','F','R')
 [調用位置]             | 上層模型                                               | 下層模型
 &nbsp;                    |                                                                |
-[下層模型phone]   | if F exist use F else use user**s**_id    | if F exist use F else use user_id
+[下層模型phone]   | 主鍵名稱為F(默認是users_id)             | 主鍵名稱為F(默認是user_id)
 
 ### 一對多 ( **Posts ⇦⇨ Comment** )
 #### 示意表
 &nbsp;                    | 正向關聯(post has comments)                    | 反向關聯(comment belongs to post)
 :-----------------------|:----------------------------------------------:|:--------------------------------------:
-[上層模型posts]          | if R exist use R else use id                    | if R exist use R else use id
-&nbsp;                         |                                                                |
-[關聯方法]                  | comments()                                            | post()
-[調用方法]                  | hasMany('App\Comment','F','R')           | belongsTo('App\Posts','F','R')
-[調用位置]                  | 上層模型                                               | 下層模型
-&nbsp;                         |                                                                |
-[下層模型comment]   | if F exist use F else use post**s**_id    | if F exist use F else use post_id
+[上層模型posts]          | 主鍵名稱為R(默認是id)                 | 主鍵名稱為R(默認是id)
+&nbsp;                         |                                                           |
+[關聯方法]                  | comments()                                       | post()
+[調用方法]                  | hasMany('App\Comment','F','R')      | belongsTo('App\Posts','F','R')
+[調用位置]                  | 上層模型                                          | 下層模型
+&nbsp;                         |                                                           |
+[下層模型comment]   | 主鍵名稱為F(默認是posts_id)        | 主鍵名稱為F(默認是post_id)
 #### 取得資料
 ```
 $comments = App\Post::find(1)->comments;
@@ -123,15 +124,15 @@ echo $comment->post->title;
 #### 示意表
 &nbsp;                    | 關聯一(user has roles)                    | 關聯二(role has users)
 :-----------------------|:----------------------------------------------:|:--------------------------------------:
-[模型一users]         | if U exist use U else use ***                  | if U exist use U else use ***
+[模型一users]         | 樞紐表對應外鍵名稱為U(默認是*)   | 樞紐表對應外鍵名稱為U(默認是*)
 &nbsp;                    |                                                                |
 [關聯方法]             | roles()                                                     | users()
 [調用方法]             | belongsToMany('App\Roles','user_role','U','R')           | belongsToMany('App\Users','user_role','R','U')
 [調用位置]             | 模型一                                                   | 模型二
 &nbsp;                    |                                                                |
-[模型二roles]         | if R exist use R else use ***                  | if R exist use R else use ***
-[中介樞紐表]         | if user_role exist use user_role else role_user | if user_role exist use user_role else role_user
- * 中介樞紐表名稱會按字母順序合併兩個模型名稱做為預設值，所以預設表明會是roles_users
+[模型二roles]         | 樞紐表對應外鍵名稱為R(默認是*)    | 樞紐表對應外鍵名稱為R(默認是*)
+[中介樞紐表]         | 樞紐表名稱為user_role(默認是roles_users) | 樞紐表名稱為user_role(默認是roles_users)
+ * 中介樞紐表名稱會按字母順序合併兩個模型名稱做為預設值，所以預設表名會是roles_users
  * belongsToMany方法參數說明如下
    * 第一參數 - 欲連結的目標模型。
    * 第二參數 - 連接中介樞紐表名稱，用以覆寫欲設值。
@@ -148,8 +149,8 @@ foreach ($user->roles as $role) {
 }
  ```
  #### 取得中介樞紐表資料
- 我們在取出隸屬多對多的模型時，物件會自動被賦予名為pivot的樞紐屬性。<br/>
- 其代表了中介表的模型，我們可以像操作eloquent模型一樣操作它。<br/>
+我們在取出隸屬多對多的模型時，物件會自動被賦予名為 pivot 的樞紐屬性。<br/>
+其屬性代表了中介表的模型，我們可以像操作 eloquent 模型一樣操作它。<br/>
 但預設該樞紐物件只會提供模型的鍵，若需要包含中介表的其他屬性，則需要<br/>
 自行在設定關聯時進行指定需要的欄位
 ```
@@ -208,14 +209,14 @@ return $this->belongsToMany('App\User')->using('App\UserRole');
 #### 示意表 ( **Country ⇨ Users ⇨ Article** )
 &nbsp;                    | 正向關聯(country has articles)                    | 反向關聯(article belongs to country)
 :-----------------------|:----------------------------------------------:|:--------------------------------------:
-[上層模型country] | if L1 exist use L1 else use ***              |
+[上層模型country] | 主鍵名稱為 L1                                     |
 &nbsp;                    |                                                                |
 [關聯方法]             | articles()                                                 |
 [調用方法]             | hasManyThrough('App\Article','App\Users','F1','F2','L1','L2')|
 [調用位置]             | 上層模型                                               |
 &nbsp;                    |                                                                |
-[目標模型article]   | if F2 exist use F2 else use ***                  |
-[中介模型users]     | Fri: if F1 exist use F1 else use ***<br/>Pri: if L2 exist use L2 else use ***|
+[目標模型article]   | 連接中介模型的外鍵名稱為 F2                  |
+[中介模型users]     | 連接上層模型的外鍵名稱為 F1<br/>主鍵名稱為 L2 |
 * 官方隻字未提反向的關聯設定方式，似乎未支援? 待釐清
 * hasManyThrough方法參數說明如下
    * 第一參數 - 欲查詢的最終目標模型。

@@ -62,7 +62,7 @@ Gate::define('posts.delete', 'App\Policies\PostPolicy@delete');
 ```
 
 view、create、update 和 delete 這些代表CRUD的行為能力預設就會定義的。而你還能透過陣列作為第三參數<br/>
-傳送到 resource 方法並予以複寫或增加預設的行為能力。陣列中的鍵值用以定義行為能力的名稱；陣列元素值則<br/>
+傳送到 resource 方法並予以複寫預設的行為能力。陣列中的鍵值用以定義行為能力的名稱；陣列元素值則<br/>
 對應方法名稱。例如，下列的程式碼將建立兩個新的 Gate 授權定義 => **posts.image** 和 **posts.photo**。
 ```
 Gate::resource('posts', 'PostPolicy', [

@@ -29,6 +29,12 @@ git config --global user.email {User Email}
 git config --list
 ```
 
+#### 關閉 Git 的 Autocrlf 功能
+Git 的 一個自動化功能，就是 Commit 時會自動將檔案內的換行符號轉換成CRLF(\r\n)，因為主要還是放在 Linux 的應用，所以關掉免於一些奇奇怪怪的問題。
+```
+git config --global core.autocrlf
+```
+
 #### 安裝TortoisGit (Optional)
 官網下載套件直接安裝即可。<br/>
 因為作者習慣使用，所以安裝此軟體並透過VSCode的外掛來間接使用。<br/>
@@ -75,6 +81,10 @@ git config --list
     // File Save Hook
     "files.trimFinalNewlines": true,
     "files.trimTrailingWhitespace": true,
+
+    // New File Setting
+    "files.encoding": "UTF-8",
+    "files.eol": "LF",
 
     // 搜尋模式
     "search.smartCase": true,
@@ -141,6 +151,7 @@ git config --list
     // New Configure
 }
 ```
+PS. VSCODE 後面的版本在設定介面上有較大異動，但仍可藉由搜尋設定名稱來找到設定位置。
 
 ##  Visual Studio Code工作區建立
 因為許多套件指令都被設定成只能在工作區環境下使用，<br/>

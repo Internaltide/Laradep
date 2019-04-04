@@ -20,7 +20,7 @@
 如果沒有特殊需求，基本上，就是一直Next用預設值就可以了。<br/>
 只有在用戶設定頁面，可以視需要建立用戶跟root密碼。
 
-## 網路設定
+## 網路設定(固定IP)
 #### 編輯 /etc/hosts，設定網址與IP的對應
 ```
 <Linux Host IP> <Hostname>
@@ -58,6 +58,14 @@ ifup {網卡編號}                  => 啟用網卡連線
 service NetworkManager restart  => 重啟網路服務
 ```
 
+## 網路設定(透過DHCP)
+```
+如果直接是透過dhcp來取得連線資訊的話，會更簡單。
+1. 編輯 /etc/sysconfig/network-scripts/ifcfg-{網卡編號}，將ONBOOT一項改為yes後，
+再透過上面連線開通區塊內提及的指令即可啟用網路連線。
+2. resolv.conf的設定將由系統自動填寫，剩餘部分再依需求進行設定既可。
+```
+
 ## Yum源更新
 預設可能是流量大且緩慢的國外源或是無效源。更新一下會讓往後套件安裝較為順暢
 #### 更改源
@@ -86,6 +94,10 @@ yum upgrade (無差別全數更新，較常用在版本升級)
 yum -y install vim
 yum -y install wget
 yum -y install telnet
+yum -y install net-tools
+yum -y install gcc gcc-c++
+yum -y install expat-devel
+yum -y install bzip2
 ```
 
 ## Git版本更新
@@ -149,25 +161,56 @@ setenforce 0
 ```
 
 ## chronyc自動校時
-#### 啟動校時
-```
-systemctl enable chronyd.service
-systemctl start chronyd.service
-```
-#### 列出系統所有可用的時區
-```
-timedatectl list-timezones
-```
 #### 設定時區為亞洲台北
 若您有其他需求，可自行選用其他可用的時區
 ```
+timedatectl list-timezones // 該指令可列出所有可用的時區
+
 timedatectl set-timezone Asia/Taipei
 ```
+
+#### 修改chrony.conf，設定校時伺服器
+預設通常有裝，若沒裝請先執行安裝
+```
+yum install -y chrony
+```
+先註解預設，再加入新設定
+```
+# server 0.centos.pool.ntp.org iburst
+# server 1.centos.pool.ntp.org iburst
+# server 2.centos.pool.ntp.org iburst
+# server 3.centos.pool.ntp.org iburst
+server time.stdtime.gov.tw iburst
+```
+
+#### 啟動校時
+```
+systemctl start chronyd.service
+systemctl enable chronyd.service
+
+# 如果原本就已啟動，請重啟
+systemctl restart chronyd.service
+```
+
 #### 手動校時(Optional)
 chronyc啟動後會自動緩步將時間校正到定位。
 倘若時差過大時，不想等候，則可下指令一次校正到定位
 ```
 chronyc -a makestep
+```
+
+#### 其他可用指令
+查看同步歷程
+```
+systemctl status chronyd.service
+```
+檢查來源 NTP 的狀態
+```
+chronyc sourcestats
+```
+查看 NTP 同步狀態
+```
+chronyc sources -v
 ```
 
 <br/><br/>

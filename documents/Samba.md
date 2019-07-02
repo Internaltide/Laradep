@@ -38,6 +38,7 @@ unix charset = utf8                               // 支援utf8中文
 dos charset = cp950                               // 支援big5中文
 load printers = no
 passdb backend = tdbsam                           // 設定使用者資料檔類型，windows用戶，此項必設
+map archive = false                               // 需設定關閉，避免檔案修改儲存後會被加上可執行權限
 
 [homes]                                           // 不提供存取家目錄可忽略此區段
 comment = Home Directories

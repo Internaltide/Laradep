@@ -70,6 +70,12 @@
  > * __SSHExtension__<br/>
  >    SSHExtension會連同依賴的ftp-simple一併安裝，並搭配ftp-simple的server設定檔，<br/>
  >    透過終端機遠端連線伺服器(可用預設的PowerShell)
+ > * __Bookmarks__<br/>
+ > 可在不同行程式碼上進行書籤標記，並來回跳躍，對code review有很大的幫助<br/>
+ > * __Bracket Pair Colorizer__<br/>
+ > 對槽狀的括號以顏色進行區分<br/>
+ > * __Project Manager__<br/>
+ > 可快速在多專案間進行跳躍，方便管理
 
  > ### **參考**
  > * __Notepad++ keymap__<br/>

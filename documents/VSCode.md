@@ -78,6 +78,9 @@ git config --global core.autocrlf
     // Grid Editor
     "workbench.editor.closeEmptyGroups": true,
 
+    // Tree Indent
+    "workbench.tree.indent": 24,
+
     // File Save Hook
     "files.trimFinalNewlines": true,
     "files.trimTrailingWhitespace": true,
